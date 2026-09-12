@@ -38,27 +38,10 @@ jobs:
       - name: Resolve integration tag
         id: release
         run: |
-          set -euo pipefail
-          base_tag=$(git tag -l 'v[0-9]*' --merged HEAD | grep -E '^v[0-9]+$' | sort -V | tail -1)
-          [[ -n "${base_tag}" ]] || { echo "No upstream base tag found on branch"; exit 1; }
-          version="${base_tag#v}"
-          build=0
-          prefix="${base_tag}-rafaelgaspar.${build}"
-          while git rev-parse "${prefix}" >/dev/null 2>&1; do
-            existing=$(git rev-parse "${prefix}")
-            if [[ "${existing}" == "${GITHUB_SHA}" ]]; then
-              echo "tag=${prefix}" >> "$GITHUB_OUTPUT"
-              echo "html5_version=${prefix#v}" >> "$GITHUB_OUTPUT"
-              echo "skip_release=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            build=$((build + 1))
-            prefix="${base_tag}-rafaelgaspar.${build}"
-          done
-          echo "tag=${prefix}" >> "$GITHUB_OUTPUT"
-          echo "html5_version=${prefix#v}" >> "$GITHUB_OUTPUT"
-          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
-          echo "skip_release=false" >> "$GITHUB_OUTPUT"
+          chmod +x ./.github/scripts/resolve-integration-tag.sh
+          ./.github/scripts/resolve-integration-tag.sh 'v[0-9]*' '^v[0-9]+$'
+          integration_version=$(grep '^integration_version=' "$GITHUB_OUTPUT" | tail -1 | cut -d= -f2-)
+          echo "html5_version=${integration_version}" >> "$GITHUB_OUTPUT"
 
       - name: Syntax-check patched JS
         run: |

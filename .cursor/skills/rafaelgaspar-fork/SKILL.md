@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 Upstream: [Xpra-org/xpra-html5](https://github.com/Xpra-org/xpra-html5). Fork:
 [rafaelgaspar/xpra-html5](https://github.com/rafaelgaspar/xpra-html5). Ships
-**`ghcr.io/rafaelgaspar/xpra-html5`** from integration branch **`rafaelgaspar`**.
+**integration tags** from branch **`rafaelgaspar`** (format `vN-rafaelgaspar.M`, starting at `.0`; tarball version matches tag without `v`).
 
 This skill covers **this repository only** — branch workflow, CI, and integration replay.
 Deploy-specific overlays (`custom.css`, `default-settings.txt`, minify/brotli in desktop images)
