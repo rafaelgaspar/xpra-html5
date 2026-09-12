@@ -405,42 +405,117 @@ class XpraWindow {
     if (!window.PointerEvent) {
       return;
     }
+    // Touch: 1 finger = click/drag, 2+ fingers = mousewheel scroll.
+    // Upstream used mousemove (broken on iPad); we use pointermove.
+    this._touch_pointers = this._touch_pointers || new Map();
+    this._touch_scroll_avg = null;
+    this._touch_dragging = false;
+    const passiveFalse = { passive: false };
+    const touchCount = () => this._touch_pointers.size;
+    const touchAvg = () => {
+      let x = 0;
+      let y = 0;
+      for (const p of this._touch_pointers.values()) {
+        x += p.x;
+        y += p.y;
+      }
+      const n = this._touch_pointers.size;
+      return { x: x / n, y: y / n };
+    };
+
     canvas.addEventListener("pointerdown", (event_) => {
       this.debug("mouse", "pointerdown:", event_);
-      if (event_.pointerType === "touch") {
-        this.pointer_down = event_.pointerId;
-        this.pointer_last_x = event_.offsetX;
-        this.pointer_last_y = event_.offsetY;
+      if (event_.pointerType !== "touch") {
+        return;
       }
-    });
+      event_.preventDefault();
+      try {
+        canvas.setPointerCapture(event_.pointerId);
+      } catch (error) {
+        /* ignore */
+      }
+      const was = touchCount();
+      this._touch_pointers.set(event_.pointerId, {
+        x: event_.offsetX,
+        y: event_.offsetY,
+      });
+      if (was === 0 && touchCount() === 1) {
+        this._touch_dragging = true;
+        this.mouse_down_cb(event_, this);
+      } else if (was >= 1 && touchCount() >= 2) {
+        if (this._touch_dragging) {
+          this._touch_dragging = false;
+          this.mouse_up_cb(event_, this);
+        }
+        this._touch_scroll_avg = touchAvg();
+      }
+    }, passiveFalse);
 
-    canvas.addEventListener("mousemove", (event_) => {
-      this.debug("mouse", "mousemove:", event_);
-      if (this.pointer_down === event_.pointerId) {
-        const dx = event_.offsetX - this.pointer_last_x;
-        const dy = event_.offsetY - this.pointer_last_y;
-        this.pointer_last_x = event_.offsetX;
-        this.pointer_last_y = event_.offsetY;
+    canvas.addEventListener("pointermove", (event_) => {
+      this.debug("mouse", "pointermove:", event_);
+      if (event_.pointerType !== "touch") {
+        return;
+      }
+      if (!this._touch_pointers.has(event_.pointerId)) {
+        return;
+      }
+      event_.preventDefault();
+      this._touch_pointers.set(event_.pointerId, {
+        x: event_.offsetX,
+        y: event_.offsetY,
+      });
+      if (touchCount() >= 2) {
+        const avg = touchAvg();
+        if (!this._touch_scroll_avg) {
+          this._touch_scroll_avg = avg;
+          return;
+        }
+        const dx = avg.x - this._touch_scroll_avg.x;
+        const dy = avg.y - this._touch_scroll_avg.y;
+        this._touch_scroll_avg = avg;
+        if (!dx && !dy) {
+          return;
+        }
         const mult = 20 * (window.devicePixelRatio || 1);
         event_.wheelDeltaX = Math.round(dx * mult);
         event_.wheelDeltaY = Math.round(dy * mult);
         return this.mouse_scroll_cb(event_, this);
       }
-    });
-    canvas.addEventListener("pointerup", (event_) => {
-      this.debug("mouse", "pointerup:", event_);
-      this.pointer_down = -1;
-    });
-    canvas.addEventListener("pointercancel", (event_) => {
-      this.debug("mouse", "pointercancel:", event_);
-      this.pointer_down = -1;
-    });
+      if (this._touch_dragging) {
+        return this.mouse_move_cb(event_, this);
+      }
+    }, passiveFalse);
+
+    const endTouch = (event_) => {
+      this.debug("mouse", "pointerup/cancel:", event_);
+      if (event_.pointerType !== "touch") {
+        return;
+      }
+      if (!this._touch_pointers.has(event_.pointerId)) {
+        return;
+      }
+      const was = touchCount();
+      this._touch_pointers.delete(event_.pointerId);
+      if (was === 1 && this._touch_dragging) {
+        this._touch_dragging = false;
+        this.mouse_up_cb(event_, this);
+      }
+      if (touchCount() < 2) {
+        this._touch_scroll_avg = null;
+      } else {
+        this._touch_scroll_avg = touchAvg();
+      }
+      if (touchCount() === 1) {
+        this._touch_dragging = false;
+      }
+    };
+    canvas.addEventListener("pointerup", endTouch, passiveFalse);
+    canvas.addEventListener("pointercancel", endTouch, passiveFalse);
     canvas.addEventListener("pointerout", (event_) => {
       this.debug("mouse", "pointerout:", event_);
     });
-    //wheel events on a window:
-    const me = this;
 
+    const me = this;
     function on_mousescroll(e) {
       me.mouse_scroll_cb(e, me);
       e.stopPropagation();
