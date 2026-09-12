@@ -804,6 +804,19 @@ class XpraClient {
   do_init_keyboard() {
     this.altgr_state = false;
     this.capture_keyboard = false;
+    // A tab switch or OS-level app-switch back to this page can silently
+    // lose the keyboard to another pool app sharing the same X server (see
+    // reclaim_focus()) -- reassert it whenever we plausibly regain the
+    // user's attention, since a click alone won't if our own focused_wid
+    // still (wrongly) matches.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        this.reclaim_focus();
+      }
+    });
+    window.addEventListener("focus", () => {
+      this.reclaim_focus();
+    });
     // assign the key callbacks
     document.addEventListener("keydown", (e) => {
       const preview_element = $(WINDOW_PREVIEW_SELECTOR);
@@ -2206,6 +2219,22 @@ class XpraClient {
       iwin.updateFocus();
       iwin.update_zindex();
     }
+  }
+
+  /*
+   * Multiple pool apps can share one physical X server on different
+   * screens (see xpra-proxy's screen pool). X11 has exactly one global
+   * keyboard input focus per server connection, not one per screen, so
+   * another app's session asserting its own focus silently steals the
+   * keyboard away from ours -- our own focused_wid then lies (it still
+   * thinks its window is focused), so set_focus()'s own staleness guard
+   * (if (this.focused_wid === wid) return;) skips resending the focus
+   * packet on a plain click/refocus. Force it through here instead of
+   * trusting that cached state.
+   */
+  reclaim_focus() {
+    this.focused_wid = 0;
+    this.auto_focus();
   }
 
   /*
