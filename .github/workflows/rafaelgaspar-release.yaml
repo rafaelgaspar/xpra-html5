@@ -42,8 +42,8 @@ jobs:
           base_tag=$(git tag -l 'v[0-9]*' --merged HEAD | grep -E '^v[0-9]+$' | sort -V | tail -1)
           [[ -n "${base_tag}" ]] || { echo "No upstream base tag found on branch"; exit 1; }
           version="${base_tag#v}"
-          prefix="${base_tag}-rafaelgaspar"
           build=0
+          prefix="${base_tag}-rafaelgaspar.${build}"
           while git rev-parse "${prefix}" >/dev/null 2>&1; do
             existing=$(git rev-parse "${prefix}")
             if [[ "${existing}" == "${GITHUB_SHA}" ]]; then
