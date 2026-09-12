@@ -15,7 +15,7 @@ Upstream: [Xpra-org/xpra-html5](https://github.com/Xpra-org/xpra-html5). Fork:
 **`ghcr.io/rafaelgaspar/xpra-html5`** from integration branch **`rafaelgaspar`**.
 
 This skill covers **this repository only** — branch workflow, CI, and integration replay.
-Deploy-specific overlays (`custom.css`, `default-settings.txt`, minify/brotli in desktop images)
+Deploy-specific overlay: `default-settings.txt` in desktop-base image only (`custom.css` + HTML links live in `feat/html5-custom-css`)
 belong in your private k3s-home repo, not here.
 
 ## Repos and branches
@@ -92,6 +92,7 @@ Upstream tags use `v<major>` (not semver `v*.*.*`).
 
 | Belongs on the fork (`feat/*`)     | Does not belong on this public repo        |
 | ---------------------------------- | ------------------------------------------ |
-| HTML5 client source patches        | Deploy `custom.css`, `default-settings.txt` |
+| HTML5 client source patches        | `feat/html5-custom-css` (`custom.css`, index/connect links) |
+| Deploy `default-settings.txt`      | desktop-base image only                     |
 | CI: GHCR publish, tag-bump replay  | Minify/brotli/gzip in desktop-base image   |
 | Agent skill for fork workflow      | Private cluster paths or repo names        |
