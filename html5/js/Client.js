@@ -804,11 +804,16 @@ class XpraClient {
   do_init_keyboard() {
     this.altgr_state = false;
     this.capture_keyboard = false;
-    // A tab switch or OS-level app-switch back to this page can silently
-    // lose the keyboard to another pool app sharing the same X server (see
-    // reclaim_focus()) -- reassert it whenever we plausibly regain the
-    // user's attention, since a click alone won't if our own focused_wid
-    // still (wrongly) matches.
+    // Another pool app sharing the same X server (see reclaim_focus()) can
+    // silently steal the keyboard at any moment on its own initiative --
+    // not just when we switch away and back. A tab switch or OS-level
+    // app-switch back to this page is the most common trigger, so reassert
+    // focus on those signals; but the theft can also happen while this tab
+    // stays continuously visible and focused the whole time, which fires
+    // neither event. A low-frequency heartbeat closes that gap: harmless
+    // when nothing was stolen (reclaim_focus() no-ops visually, it's just
+    // an extra focus packet), and bounds the outage to a few seconds
+    // instead of "until you notice and reload" when something was.
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
         this.reclaim_focus();
@@ -817,6 +822,11 @@ class XpraClient {
     window.addEventListener("focus", () => {
       this.reclaim_focus();
     });
+    setInterval(() => {
+      if (!document.hidden) {
+        this.reclaim_focus();
+      }
+    }, 3000);
     // assign the key callbacks
     document.addEventListener("keydown", (e) => {
       const preview_element = $(WINDOW_PREVIEW_SELECTOR);
