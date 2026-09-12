@@ -1,0 +1,1121 @@
+/*
+ * Xpra HTML5 UI overrides for desktop agents (Cursor / Claude).
+ * Linked from index.html (after menu-skin.css) and connect.html (after connect.css).
+ *
+ * Cursor IDE palette (RGB):
+ *   darkest 20,20,20 (#141414), elevated 24,24,24 (#181818),
+ *   lighter 33,33,33 (#212121), highlight 50,50,50 (#323232),
+ *   text 205,205,205 (#cdcdcd), muted 150,150,150 (#969696)
+ */
+
+:root {
+  --cursor-bg-darkest: #141414;
+  --cursor-bg-elevated: #181818;
+  --cursor-bg-lighter: #212121;
+  --cursor-bg-highlight: #323232;
+  --cursor-fg: #cdcdcd;
+  --cursor-fg-muted: #969696;
+  --cursor-menu-bg: #181818;
+  --cursor-menu-fg: #cdcdcd;
+  --cursor-menu-border: #323232;
+  --cursor-menu-hover-bg: #212121;
+  --cursor-menu-font-size: 13px;
+  --cursor-menu-item-height: 28px;
+  --cursor-menu-inner-height: 26px;
+  --cursor-menu-icon-width: 28px;
+  --cursor-menu-icon-gap: 8px;
+  --cursor-menu-panel-padding: 2px;
+  --cursor-menu-item-margin-y: 1px;
+  --cursor-menu-item-margin-x: 1px;
+  --cursor-menu-toolbar-overlap: 3px;
+  --cursor-menu-flyout-overlap: 12px;
+  --cursor-menu-radius: 6px;
+  --cursor-connect-form-radius: 18px;
+  --cursor-connect-form-bg: #323232;
+  --cursor-connect-control-bg: #464646;
+  --cursor-connect-surface-bg: #464646;
+  --cursor-connect-hover-bg: #505050;
+  --cursor-connect-border: #464646;
+  --cursor-connect-host-width: 36ch;
+  --cursor-connect-port-width: 5em;
+  --cursor-connect-row-width: calc(var(--cursor-connect-host-width) + var(--cursor-connect-port-width) - 1px);
+  --cursor-connect-field-half-width: calc((var(--cursor-connect-row-width) - 1px) / 2);
+  --cursor-menu-item-radius: 4px;
+  --cursor-window-head-bg: #181818;
+  --cursor-window-head-bg-focus: #141414;
+  --cursor-window-head-border: #323232;
+}
+
+/* HTML5 page backdrop (matches <body background="background.png">).
+ * File is coin-flipped into /usr/share/xpra/www/background.png at start. */
+body,
+body.desktop {
+  background-color: #181818 !important;
+  background-image: url("../background.png") !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* --- SSD window title bars (Xpra draws these when the app has no CSD). --- */
+.window.border {
+  border-color: var(--cursor-menu-border) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* --- SSD window title bars (override client.css #a0a0a0 / #ffffff). --- */
+div.window .windowhead,
+.windowhead {
+  position: relative !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  color: #cdcdcd !important;
+  background-color: #181818 !important;
+  background: #181818 !important;
+  border-bottom: 1px solid #323232 !important;
+  font-size: var(--cursor-menu-font-size) !important;
+  box-sizing: border-box !important;
+}
+
+div.windowinfocus div.windowhead,
+div.window.border div.windowinfocus .windowhead {
+  background-color: #141414 !important;
+  background: #141414 !important;
+  color: #cdcdcd !important;
+}
+
+.windowhead > span.windowicon {
+  position: absolute !important;
+  width: 16px !important;
+  height: 16px !important;
+  left: 8px !important;
+  top: 7px !important;
+  transform: none !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.windowhead > span.windowicon > img {
+  position: static !important;
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  left: auto !important;
+  top: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.windowhead .windowtitle {
+  position: absolute !important;
+  color: var(--cursor-menu-fg) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+  left: 32px !important;
+  right: 72px !important;
+  top: 0 !important;
+  transform: none !important;
+  padding: 0 !important;
+  line-height: 30px !important;
+  height: 30px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.windowhead .windowbuttons {
+  position: absolute !important;
+  top: 7px !important;
+  right: 8px !important;
+  transform: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.windowhead .windowbuttons img {
+  width: 16px !important;
+  height: 16px !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.8 !important;
+  display: block !important;
+}
+
+.windowhead .windowbuttons img:hover {
+  opacity: 1 !important;
+}
+
+/* --- Floating toolbar: transparent, top-center, no drag chevron --- */
+#float_menu {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+#float_menu > .Menu.-horizontal,
+#float_menu .Menu.-horizontal {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#float_menu_button,
+#float_menu_arrow {
+  display: none !important;
+}
+
+/* Toolbar icons on the transparent bar (Cursor-like muted foreground). */
+#float_menu > .Menu.-horizontal,
+#float_menu > .Menu.-horizontal > li > a,
+#float_menu > .Menu.-horizontal > li > a[data-icon]::before {
+  color: var(--cursor-menu-fg) !important;
+  border-color: var(--cursor-menu-fg) !important;
+}
+
+#float_menu > .Menu.-horizontal > li:hover > a:first-child {
+  background-color: var(--cursor-menu-hover-bg) !important;
+  color: var(--cursor-menu-fg) !important;
+}
+
+#float_tray > div {
+  background-color: transparent !important;
+}
+
+/* --- Dropdown menus: background #181818, text #cdcdcd (overrides menu-skin.css). --- */
+#menu_list,
+#menu_list.-visible,
+#startmenu,
+#startmenu.-visible,
+.Menu.-floating,
+.Menu ul,
+#float_menu > .Menu.-horizontal > li > ul,
+#open_windows_list:not(:empty),
+#menu_list li > ul,
+#startmenu li > ul,
+#float_menu .Menu ul,
+#float_menu .Menu ul li > ul {
+  background-color: #181818 !important;
+  background: #181818 !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  color: #cdcdcd !important;
+}
+
+#menu_list li > a,
+#menu_list li > a *,
+#startmenu li > a,
+#startmenu li > a *,
+#float_menu .Menu ul li > a,
+#float_menu .Menu ul li > a *,
+#float_menu .Menu.-floating li > a,
+#float_menu .Menu.-floating li > a *,
+#open_windows_list li > a,
+#open_windows_list li > a *,
+.menu-divleft,
+.menu-divright,
+.menu-content-left,
+.menu-content-right {
+  color: #cdcdcd !important;
+}
+
+/* --- Dropdown panels (layout + borders). --- */
+.Menu ul,
+.Menu.-floating,
+#menu_list,
+#float_menu > .Menu.-horizontal > li > ul,
+#startmenu,
+#open_windows_list:not(:empty) {
+  background-color: #181818 !important;
+  background: #181818 !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  color: #cdcdcd !important;
+  border: 1px solid var(--cursor-menu-border) !important;
+  border-radius: var(--cursor-menu-radius) !important;
+  border-top-left-radius: var(--cursor-menu-radius) !important;
+  border-top-right-radius: var(--cursor-menu-radius) !important;
+  border-bottom-left-radius: var(--cursor-menu-radius) !important;
+  border-bottom-right-radius: var(--cursor-menu-radius) !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  padding: var(--cursor-menu-panel-padding) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif !important;
+  font-size: var(--cursor-menu-font-size) !important;
+  line-height: normal !important;
+  min-width: max-content !important;
+  width: max-content !important;
+}
+
+/* Nested flyouts: same tint. */
+.Menu ul ul,
+#startmenu li > ul,
+#menu_list li > ul,
+#float_menu .Menu ul li > ul {
+  background-color: #181818 !important;
+  background: #181818 !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  color: #cdcdcd !important;
+  border: 1px solid var(--cursor-menu-border) !important;
+  border-radius: var(--cursor-menu-radius) !important;
+  padding: var(--cursor-menu-panel-padding) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+  min-width: max-content !important;
+  width: max-content !important;
+}
+
+/* Empty open-windows dropdown: hide the collapsed bar (no windows open). */
+#open_windows_list:empty {
+  display: none !important;
+  padding: 0 !important;
+  border: none !important;
+  min-width: 0 !important;
+}
+
+/* Show flyouts while JS marks them open (-visible). Avoid bare ul:hover (orphan stickiness). */
+#menu_list.-visible,
+#startmenu.-visible,
+#startmenu ul.-visible,
+#menu_list ul.-visible,
+#float_menu .Menu ul.-visible {
+  display: block !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+/* Bridge parent row → child panel while pointer moves into the flyout. */
+#startmenu > li.-hasSubmenu.-active:hover > ul,
+#startmenu > li.-hasSubmenu.-active > ul.-visible,
+#startmenu li.-hasSubmenu.-active:hover > ul,
+#startmenu li.-hasSubmenu.-active > ul.-visible,
+#startmenu li.-hasSubmenu.-active > ul.-visible:hover,
+#startmenu li.-hasSubmenu > ul.-visible:hover,
+#menu_list > li.-hasSubmenu.-active:hover > ul,
+#menu_list > li.-hasSubmenu.-active > ul.-visible,
+#menu_list > li.-hasSubmenu.-active > ul.-visible:hover,
+#float_menu .Menu ul li.-hasSubmenu.-active:hover > ul,
+#float_menu .Menu ul li.-hasSubmenu.-active > ul.-visible,
+#float_menu .Menu ul li.-hasSubmenu.-active > ul.-visible:hover,
+#float_menu .Menu ul li.-hasSubmenu > ul.-visible:hover {
+  display: block !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+/* Open windows list: only when populated (empty list hidden above). */
+#open_windows_list.-visible:not(:empty) {
+  display: block !important;
+}
+
+/* Open windows list rows — match #menu_list / #startmenu item metrics. */
+#open_windows_list > li.windowlist-li,
+.windowlist-li {
+  min-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: stretch !important;
+  min-height: var(--cursor-menu-item-height) !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: normal !important;
+}
+
+#open_windows_list > li.windowlist-li > a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0 8px !important;
+  flex: 1 1 auto !important;
+  align-self: stretch !important;
+  position: relative !important;
+  height: var(--cursor-menu-inner-height) !important;
+  min-height: var(--cursor-menu-inner-height) !important;
+  max-height: var(--cursor-menu-inner-height) !important;
+  line-height: 1 !important;
+  margin: var(--cursor-menu-item-margin-y) var(--cursor-menu-item-margin-x) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+}
+
+#open_windows_list > li.windowlist-li:hover > a:first-child {
+  background-color: var(--cursor-menu-hover-bg) !important;
+  color: var(--cursor-menu-fg) !important;
+}
+
+#open_windows_list .menu-divleft {
+  float: none !important;
+  clear: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* App/window icon — img.menu-content-left (not the title div). */
+#open_windows_list .menu-divleft > img,
+#open_windows_list .menu-divleft > img.menu-content-left {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  float: none !important;
+}
+
+#open_windows_list .menu-divleft > div.menu-content-left {
+  float: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#open_windows_list .menu-divright {
+  float: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+#open_windows_list .menu-divright img,
+#open_windows_list .menu-divright img.menu-content-right {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  display: block !important;
+  float: none !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.8 !important;
+}
+
+/* Slight overlap with toolbar bottom (3px — 1px tighter than prior 2px). */
+#float_menu > .Menu.-horizontal > li > ul {
+  top: calc(100% - var(--cursor-menu-toolbar-overlap)) !important;
+  left: 0 !important;
+  margin-top: 0 !important;
+  border-top-left-radius: var(--cursor-menu-radius) !important;
+  border-top-right-radius: var(--cursor-menu-radius) !important;
+}
+
+/* Nested flyouts overlap parent edge so the pointer can reach deeper levels. */
+#startmenu li > ul,
+#menu_list li > ul,
+#float_menu .Menu ul li > ul {
+  left: calc(100% - var(--cursor-menu-flyout-overlap)) !important;
+  top: 0 !important;
+  border-radius: var(--cursor-menu-radius) !important;
+  border-top-left-radius: var(--cursor-menu-radius) !important;
+  border-top-right-radius: var(--cursor-menu-radius) !important;
+  overflow: visible !important;
+  z-index: 100002 !important;
+}
+
+/* Active category stays above siblings so flyout captures vertical pointer moves. */
+#startmenu li.-active {
+  position: relative !important;
+  z-index: 100003 !important;
+}
+
+#startmenu li.-active > ul {
+  z-index: 100004 !important;
+}
+
+/* menu.css drops flyouts to z-index:-1 while -animating — pointer falls through. */
+#float_menu > .Menu.-horizontal > li > ul.-animating,
+#menu_list.-animating,
+#startmenu li > ul.-animating,
+#menu_list li > ul.-animating,
+#float_menu .Menu ul li > ul.-animating {
+  z-index: 100002 !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+#float_menu .Menu.-alignRight li > ul,
+#menu_list .-alignRight > ul {
+  left: auto !important;
+  right: calc(100% - var(--cursor-menu-flyout-overlap)) !important;
+}
+
+#float_menu > .Menu.-horizontal.-alignRight > li > ul {
+  left: auto !important;
+  right: 0 !important;
+}
+
+#float_menu > .Menu.-horizontal > li.-active > ul,
+#float_menu > .Menu.-horizontal > li > ul.-visible {
+  z-index: 100001 !important;
+}
+
+#float_menu > .Menu.-horizontal > li > ul.-visible {
+  transform: scale(1) translateY(0) !important;
+  transform-origin: left top !important;
+}
+
+#float_menu > .Menu.-horizontal.-alignRight > li > ul.-visible {
+  transform-origin: right top !important;
+}
+
+/* Row layout — flex on li + a; no line-height (it fights flex and drifts nested menus). */
+#float_menu .Menu ul li,
+#float_menu .Menu.-floating li,
+#menu_list li,
+#startmenu li {
+  display: flex !important;
+  align-items: stretch !important;
+  min-height: var(--cursor-menu-item-height) !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: normal !important;
+}
+
+#float_menu .Menu ul li > a,
+#float_menu .Menu.-floating li > a,
+#menu_list li > a,
+#startmenu li > a {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  height: var(--cursor-menu-inner-height) !important;
+  min-height: var(--cursor-menu-inner-height) !important;
+  max-height: var(--cursor-menu-inner-height) !important;
+  line-height: 1 !important;
+  margin: var(--cursor-menu-item-margin-y) var(--cursor-menu-item-margin-x) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+  color: var(--cursor-menu-fg) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+#float_menu .Menu ul li > a[data-icon],
+#float_menu .Menu.-floating li > a[data-icon],
+#menu_list li > a[data-icon],
+#startmenu li > a[data-icon] {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: calc(var(--cursor-menu-icon-width) + var(--cursor-menu-icon-gap)) !important;
+  padding-right: 8px !important;
+}
+
+#float_menu .Menu ul li > a:not([data-icon]),
+#float_menu .Menu.-floating li > a:not([data-icon]),
+#menu_list li > a:not([data-icon]),
+#startmenu li > a:not([data-icon]) {
+  padding: 0 8px !important;
+}
+
+/* XDG categories (second level): floated menu-divleft pushes label to the right. */
+#startmenu > li > a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 0 8px !important;
+}
+
+#startmenu > li > a .menu-divleft {
+  float: none !important;
+  clear: none !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#startmenu > li > a .menu-divleft img {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+/* XDG nested rows under startmenu (third level+). */
+#startmenu li > ul li > a,
+#float_menu .Menu ul ul li > a {
+  padding: 0 8px !important;
+}
+
+/* App entries: label inside menu-content-left within menu-divleft. */
+#startmenu li > ul li > a:has(.menu-content-left) .menu-divleft,
+#float_menu .Menu ul ul li > a:has(.menu-content-left) .menu-divleft {
+  float: none !important;
+  clear: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#startmenu li > ul li > a:has(.menu-content-left) .menu-content-left,
+#float_menu .Menu ul ul li > a:has(.menu-content-left) .menu-content-left {
+  float: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+#startmenu li > ul li > a:has(.menu-content-left) .menu-divleft img,
+#float_menu .Menu ul ul li > a:has(.menu-content-left) .menu-divleft img {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+/* Category flyouts (has further submenu): icon div + text sibling — not menu-content-left. */
+#startmenu li > ul li.-hasSubmenu > a,
+#float_menu .Menu ul ul li.-hasSubmenu > a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 0 8px !important;
+  padding-right: 24px !important;
+}
+
+#startmenu li > ul li.-hasSubmenu > a .menu-divleft,
+#float_menu .Menu ul ul li.-hasSubmenu > a .menu-divleft {
+  float: none !important;
+  clear: none !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#startmenu li > ul li.-hasSubmenu > a .menu-divleft img,
+#float_menu .Menu ul ul li.-hasSubmenu > a .menu-divleft img {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+#startmenu li > ul li > ul,
+#float_menu .Menu ul ul li > ul {
+  min-width: max-content !important;
+  width: max-content !important;
+}
+
+/* Material icons — center in the icon column (menu.css stretches :before full height). */
+#float_menu .Menu ul *[data-icon]:before,
+#float_menu .Menu.-floating *[data-icon]:before,
+#menu_list *[data-icon]:before,
+#startmenu *[data-icon]:before {
+  color: var(--cursor-menu-fg) !important;
+  font-size: 14px !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: translateY(-50%) !important;
+  width: var(--cursor-menu-icon-width) !important;
+  height: var(--cursor-menu-icon-width) !important;
+  line-height: var(--cursor-menu-icon-width) !important;
+  text-align: center !important;
+}
+
+#float_menu .Menu ul li.-hasSubmenu > a,
+#float_menu .Menu.-floating li.-hasSubmenu > a,
+#menu_list li.-hasSubmenu > a,
+#startmenu li.-hasSubmenu > a {
+  padding-right: 24px !important;
+}
+
+#float_menu .Menu ul li.-hasSubmenu > a:after,
+#float_menu .Menu.-floating li.-hasSubmenu > a:after,
+#menu_list li.-hasSubmenu > a:after,
+#startmenu li.-hasSubmenu > a:after {
+  color: var(--cursor-menu-fg) !important;
+  border-color: var(--cursor-menu-fg) !important;
+  width: 6px !important;
+  height: 6px !important;
+  right: 10px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+}
+
+#menu_list,
+#menu_list a,
+#startmenu,
+#startmenu a {
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+/* Cursor-style hover: grey inset pill on :hover only (not li.-active parent). */
+#float_menu .Menu ul li:hover > a:first-child,
+#float_menu .Menu.-floating li:hover > a:first-child,
+#menu_list li:hover > a:first-child,
+#startmenu li:hover > a:first-child {
+  background-color: var(--cursor-menu-hover-bg) !important;
+  color: var(--cursor-menu-fg) !important;
+}
+
+#float_menu .Menu ul li:hover > a:first-child *[data-icon]:before,
+#float_menu .Menu.-floating li:hover > a:first-child *[data-icon]:before,
+#menu_list li:hover > a:first-child *[data-icon]:before,
+#startmenu li:hover > a:first-child *[data-icon]:before {
+  color: var(--cursor-menu-fg) !important;
+}
+
+#float_menu .Menu ul li:hover > a:first-child:after,
+#float_menu .Menu.-floating li:hover > a:first-child:after,
+#menu_list li:hover > a:first-child:after,
+#startmenu li:hover > a:first-child:after {
+  border-color: var(--cursor-menu-fg) !important;
+}
+
+/* Open-windows list rows */
+.windowlist-li,
+.windowlist-li a,
+#open_windows_list li a {
+  color: var(--cursor-menu-fg) !important;
+  background: transparent !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+.menu-divleft,
+.menu-divright,
+.menu-content-left,
+.menu-content-right {
+  color: var(--cursor-menu-fg) !important;
+}
+
+/* --- Connect page (connect.html) — Xpra menu panel chrome. --- */
+body:has(.form-signin) {
+  background-color: var(--cursor-bg-elevated) !important;
+  background-image: url("../background.png") !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  color: var(--cursor-menu-fg) !important;
+}
+
+body:has(.form-signin) div.bg-image {
+  background-color: var(--cursor-bg-elevated) !important;
+  background-image: url("../background.png") !important;
+  opacity: 1 !important;
+}
+
+body:has(.form-signin) .container {
+  background: transparent !important;
+}
+
+/* Lighter connect palette (#323232 panel, #464646 controls/surfaces). */
+body:has(.form-signin) .form-signin {
+  background-color: var(--cursor-connect-form-bg) !important;
+  background-image: none !important;
+  border: 1px solid var(--cursor-connect-border) !important;
+  border-radius: var(--cursor-connect-form-radius) !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  padding: 16px !important;
+  color: var(--cursor-menu-fg) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .form-signin > img {
+  display: block !important;
+  margin: 0 auto 12px !important;
+}
+
+body:has(.form-signin) .form-signin > .form-signin-heading,
+body:has(.form-signin) .form-signin > h5,
+body:has(.form-signin) .form-signin > #alert-disconnect,
+body:has(.form-signin) .form-signin > .form-group {
+  text-align: center !important;
+}
+
+body:has(.form-signin) .form-signin > h5 {
+  padding-left: 0 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline {
+  display: table !important;
+  width: var(--cursor-connect-row-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: left !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) {
+  width: var(--cursor-connect-row-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Row 1: hostname + port */
+body:has(.form-signin) .form-signin > .form-group.form-inline #server,
+body:has(.form-signin) .form-signin > .form-group.form-inline #port {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  width: auto !important;
+  height: 34px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #server {
+  width: var(--cursor-connect-host-width) !important;
+  min-width: var(--cursor-connect-host-width) !important;
+  max-width: var(--cursor-connect-host-width) !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  margin-right: -1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #server:focus {
+  z-index: 2 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #port {
+  width: var(--cursor-connect-port-width) !important;
+  min-width: var(--cursor-connect-port-width) !important;
+  max-width: var(--cursor-connect-port-width) !important;
+  margin-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #port:focus {
+  z-index: 2 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #port + br {
+  display: none !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #server-info-box {
+  margin-bottom: 12px !important;
+}
+
+/* Row 2: username + password + visibility toggle */
+body:has(.form-signin) .form-signin > .form-group.form-inline #username,
+body:has(.form-signin) .form-signin > .form-group.form-inline #password,
+body:has(.form-signin) .form-signin > .form-group.form-inline #toggle-password {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  width: auto !important;
+  height: 34px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #username {
+  width: var(--cursor-connect-field-half-width) !important;
+  min-width: var(--cursor-connect-field-half-width) !important;
+  max-width: var(--cursor-connect-field-half-width) !important;
+  margin-top: 0 !important;
+  margin-right: -1px !important;
+  border-top: 1px solid var(--cursor-connect-border) !important;
+  border-top-left-radius: var(--cursor-menu-item-radius) !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: var(--cursor-menu-item-radius) !important;
+  border-bottom-right-radius: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #username:focus {
+  z-index: 2 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #password {
+  width: var(--cursor-connect-field-half-width) !important;
+  min-width: var(--cursor-connect-field-half-width) !important;
+  max-width: var(--cursor-connect-field-half-width) !important;
+  border-top: 1px solid var(--cursor-connect-border) !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: var(--cursor-menu-item-radius) !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: var(--cursor-menu-item-radius) !important;
+  padding-right: 2.2em !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #password:focus {
+  z-index: 2 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #toggle-password {
+  width: 1.2em !important;
+  height: 1.2em !important;
+  margin-left: -1.85em !important;
+  margin-right: 0 !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  z-index: 2 !important;
+  pointer-events: auto !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #toggle-password + br {
+  display: none !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline .security-box,
+body:has(.form-signin) .form-signin > .form-group.form-inline #server-info-box,
+body:has(.form-signin) .form-signin > .form-group.form-inline .panel-group {
+  width: 100% !important;
+  max-width: none !important;
+  text-align: center !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline .security-box {
+  padding-left: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px 16px !important;
+  margin-top: 8px !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline .security-box > br {
+  display: none !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #encryption-key-span,
+body:has(.form-signin) .form-signin > .form-group.form-inline #insecure-span {
+  flex-basis: 100% !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline #encryption-span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline span#server-info {
+  padding-left: 0 !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group.form-inline .form-control.command {
+  margin-left: 0 !important;
+}
+
+body:has(.form-signin) .form-signin > .panel-group[role="tablist"] {
+  text-align: left !important;
+}
+
+body:has(.form-signin) .form-signin > .panel-group[role="tablist"] .list-group-item {
+  text-align: left !important;
+}
+
+body:has(.form-signin) .form-signin-heading,
+body:has(.form-signin) h5,
+body:has(.form-signin) .panel-title,
+body:has(.form-signin) label {
+  color: var(--cursor-menu-fg) !important;
+}
+
+body:has(.form-signin) h5 {
+  color: var(--cursor-fg-muted) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) label {
+  font-weight: 600 !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .form-control {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-control-bg) !important;
+  border: 1px solid var(--cursor-connect-border) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+  box-shadow: none !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .form-control::placeholder {
+  color: var(--cursor-fg-muted) !important;
+}
+
+body:has(.form-signin) .form-control:focus {
+  border-color: var(--cursor-fg-muted) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px var(--cursor-connect-border) !important;
+  background-color: var(--cursor-connect-hover-bg) !important;
+}
+
+body:has(.form-signin) select,
+body:has(.form-signin) .list-group-item > select,
+body:has(.form-signin) #encryption,
+body:has(.form-signin) #scroll_reverse_y,
+body:has(.form-signin) #middle_emulation_modifier,
+body:has(.form-signin) #toolbar_position {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-control-bg) !important;
+  border: 1px solid var(--cursor-connect-border) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) input[type="checkbox"],
+body:has(.form-signin) input[type="radio"] {
+  accent-color: var(--cursor-connect-hover-bg);
+}
+
+body:has(.form-signin) #ssl-span,
+body:has(.form-signin) #webtransport-span,
+body:has(.form-signin) #encryption-span,
+body:has(.form-signin) #insecure-span,
+body:has(.form-signin) .checkbox,
+body:has(.form-signin) .radiobox {
+  color: var(--cursor-menu-fg) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .btn-success {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-surface-bg) !important;
+  border: 1px solid var(--cursor-connect-border) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .btn-success:hover {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-hover-bg) !important;
+  border-color: var(--cursor-connect-border) !important;
+}
+
+/* Connect / Client URI / Connection File — joined button group (4px outer corners). */
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) .btn-success {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  border-radius: 0 !important;
+  margin-left: -1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) .btn-success:first-of-type {
+  margin-left: 0 !important;
+  border-top-left-radius: var(--cursor-menu-item-radius) !important;
+  border-bottom-left-radius: var(--cursor-menu-item-radius) !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) .btn-success:last-of-type {
+  border-top-right-radius: var(--cursor-menu-item-radius) !important;
+  border-bottom-right-radius: var(--cursor-menu-item-radius) !important;
+}
+
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) .btn-success:hover,
+body:has(.form-signin) .form-signin > .form-group:not(.form-inline) .btn-success:focus {
+  z-index: 2 !important;
+}
+
+body:has(.form-signin) .panel.panel-default,
+body:has(.form-signin) .panel-group .panel {
+  background-color: transparent !important;
+  border-color: var(--cursor-connect-border) !important;
+}
+
+body:has(.form-signin) #expandopts {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-surface-bg) !important;
+  border: 1px solid var(--cursor-connect-border) !important;
+  border-radius: var(--cursor-menu-item-radius) !important;
+}
+
+body:has(.form-signin) .list-group-item {
+  color: var(--cursor-menu-fg) !important;
+  background-color: var(--cursor-connect-form-bg) !important;
+  border-color: var(--cursor-connect-border) !important;
+  font-size: var(--cursor-menu-font-size) !important;
+}
+
+body:has(.form-signin) .list-group-item:hover {
+  background-color: var(--cursor-connect-surface-bg) !important;
+}
+
+body:has(.form-signin) #alert-disconnect.alert-info {
+  color: var(--cursor-menu-fg) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 10px 12px !important;
+  margin-bottom: 20px !important;
+}
+
+body:has(.form-signin) span.warning {
+  color: #f48771 !important;
+}
+
+body:has(.form-signin) span.disabled {
+  color: var(--cursor-fg-muted) !important;
+}
+
+body:has(.form-signin) span#server-info {
+  color: var(--cursor-fg-muted) !important;
+}
+
+body:has(.form-signin) img.field-icon {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.8 !important;
+  object-fit: contain !important;
+}
