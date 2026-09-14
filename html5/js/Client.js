@@ -645,7 +645,14 @@ class XpraClient {
     if (this.port) {
       uri += `:${this.port}`;
     }
-    uri += this.path;
+    let path = this.path;
+    const w = this.container ? this.container.clientWidth : 0;
+    const h = this.container ? this.container.clientHeight : 0;
+    if (w > 0 && h > 0) {
+      const sep = path.includes("?") ? "&" : "?";
+      path += `${sep}x_desktop_client_width=${w}&x_desktop_client_height=${h}`;
+    }
+    uri += path;
     // do open
     this.uri = uri;
     this.on_connection_progress("Opening WebSocket connection", uri, 50);
