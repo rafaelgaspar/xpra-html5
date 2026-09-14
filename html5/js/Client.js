@@ -241,9 +241,7 @@ class XpraClient {
     this.desktop_height = 0;
     this.desktop_width = this.container.clientWidth;
     this.desktop_height = this.container.clientHeight;
-    this._websocket_client_width = 0;
-    this._websocket_client_height = 0;
-    this._proxy_dimension_reconnect_timer = null;
+    this._desktop_client_dimension_timer = null;
     this.server_remote_logging = false;
     this.server_start_time = -1;
     this.client_start_time = new Date();
@@ -629,72 +627,27 @@ class XpraClient {
     decode_worker.postMessage({cmd: "check", encodings: this.check_encodings});
   }
 
-  // xpra-proxy reads x_desktop_client_* on each WebSocket handshake (pool.connect /
-  // pool.resize). configure_display alone does not update the proxy — reconnect when
-  // the canvas size changes or was unknown at first connect.
-  _path_with_client_dimensions(path) {
+  // xpra-proxy consumes JSON text WebSocket frames (stripped before xpra hello).
+  _send_desktop_client_dimensions_to_proxy() {
     const w = this.container ? this.container.clientWidth : 0;
     const h = this.container ? this.container.clientHeight : 0;
-    const qIdx = path.indexOf("?");
-    let base = path;
-    const params = new URLSearchParams();
-    if (qIdx >= 0) {
-      base = path.slice(0, qIdx);
-      const existing = new URLSearchParams(path.slice(qIdx + 1));
-      for (const [key, value] of existing.entries()) {
-        if (key !== "x_desktop_client_width" && key !== "x_desktop_client_height") {
-          params.append(key, value);
-        }
-      }
-    }
-    if (w > 0 && h > 0) {
-      params.set("x_desktop_client_width", String(w));
-      params.set("x_desktop_client_height", String(h));
-    }
-    const qs = params.toString();
-    return qs ? `${base}?${qs}` : base;
-  }
-
-  _note_websocket_client_dimensions(path) {
-    const qIdx = path.indexOf("?");
-    if (qIdx < 0) {
-      this._websocket_client_width = 0;
-      this._websocket_client_height = 0;
+    if (w <= 0 || h <= 0 || !this.protocol?.send_desktop_client_dimensions) {
       return;
     }
-    const params = new URLSearchParams(path.slice(qIdx + 1));
-    this._websocket_client_width = Number.parseInt(params.get("x_desktop_client_width") || "0", 10);
-    this._websocket_client_height = Number.parseInt(params.get("x_desktop_client_height") || "0", 10);
+    this.protocol.send_desktop_client_dimensions(w, h);
   }
 
-  _proxy_dimensions_stale() {
-    const w = this.container ? this.container.clientWidth : 0;
-    const h = this.container ? this.container.clientHeight : 0;
-    if (w <= 0 || h <= 0) {
-      return false;
-    }
-    return w !== this._websocket_client_width || h !== this._websocket_client_height;
-  }
-
-  _schedule_proxy_dimension_reconnect() {
-    if (!this.server_is_shadow || !this.connected || this.reconnect_in_progress) {
+  _schedule_desktop_client_dimensions_to_proxy() {
+    if (!this.connected || this.reconnect_in_progress) {
       return;
     }
-    if (!this._proxy_dimensions_stale()) {
-      return;
-    }
-    if (this._proxy_dimension_reconnect_timer) {
-      clearTimeout(this._proxy_dimension_reconnect_timer);
+    if (this._desktop_client_dimension_timer) {
+      clearTimeout(this._desktop_client_dimension_timer);
     }
     const me = this;
-    this._proxy_dimension_reconnect_timer = setTimeout(() => {
-      me._proxy_dimension_reconnect_timer = null;
-      if (!me.connected || me.reconnect_in_progress || !me._proxy_dimensions_stale()) {
-        return;
-      }
-      me.clog("viewport changed — reconnecting so proxy can resize pool slot");
-      me.reconnect_attempt = 0;
-      me.do_reconnect();
+    this._desktop_client_dimension_timer = setTimeout(() => {
+      me._desktop_client_dimension_timer = null;
+      me._send_desktop_client_dimensions_to_proxy();
     }, 750);
   }
 
@@ -717,9 +670,7 @@ class XpraClient {
     if (this.port) {
       uri += `:${this.port}`;
     }
-    const path = this._path_with_client_dimensions(this.path);
-    this._note_websocket_client_dimensions(path);
-    uri += path;
+    uri += this.path;
     // do open
     this.uri = uri;
     this.on_connection_progress("Opening WebSocket connection", uri, 50);
@@ -786,9 +737,9 @@ class XpraClient {
       clearTimeout(this.ping_grace_timer);
       this.ping_grace_timer = null;
     }
-    if (this._proxy_dimension_reconnect_timer) {
-      clearTimeout(this._proxy_dimension_reconnect_timer);
-      this._proxy_dimension_reconnect_timer = null;
+    if (this._desktop_client_dimension_timer) {
+      clearTimeout(this._desktop_client_dimension_timer);
+      this._desktop_client_dimension_timer = null;
     }
   }
 
@@ -844,7 +795,7 @@ class XpraClient {
     }
     // Re-position floating toolbar menu
     this.position_float_menu();
-    this._schedule_proxy_dimension_reconnect();
+    this._schedule_desktop_client_dimensions_to_proxy();
   }
 
   auto_fullscreen_desktop_window()  {
@@ -2478,6 +2429,7 @@ class XpraClient {
     this.cancel_open_timer();
     // call the send_hello function
     this.on_connection_progress("WebSocket connection established", "", 60);
+    this._send_desktop_client_dimensions_to_proxy();
     // wait timeout seconds for a hello, then bomb
     this._send_hello();
     this.on_open();
