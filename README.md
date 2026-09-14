@@ -8,7 +8,7 @@ Customizations ship as Docker images built from the **`rafaelgaspar`** integrati
 - **Image:** [`ghcr.io/rafaelgaspar/xpra-html5`](https://github.com/rafaelgaspar/xpra-html5/pkgs/container/xpra-html5)
 - **Workflow:** linear stacked `feat/*` branches (see [`.cursor/skills/rafaelgaspar-fork/SKILL.md`](.cursor/skills/rafaelgaspar-fork/SKILL.md))
 
-Deploy-specific overlays (`custom.css`, `default-settings.txt`) stay in consumer images, not this fork.
+`custom.css` and HTML client wiring ship in `feat/html5-custom-css`. Deploy-specific `default-settings.txt` stays in k3s-home `desktop-base` only.
 
 ---
 
