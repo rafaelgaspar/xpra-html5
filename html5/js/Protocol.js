@@ -88,12 +88,6 @@ class XpraProtocolWorkerHost {
     this.packet_handler = callback;
   };
 
-  send_desktop_client_dimensions = function(width, height) {
-    if (this.worker) {
-      this.worker.postMessage({c: "d", w: width, h: height});
-    }
-  };
-
   set_cipher_in = function(caps, key) {
     this.worker.postMessage({
       c: "z",
@@ -554,21 +548,6 @@ class XpraProtocol {
     setTimeout(() => this.process_send_queue(), this.process_interval);
   }
 
-  send_desktop_client_dimensions(width, height) {
-    if (!this.websocket || width <= 0 || height <= 0) {
-      return;
-    }
-    const payload = JSON.stringify({
-      x_desktop_client_width: width,
-      x_desktop_client_height: height,
-    });
-    try {
-      this.websocket.send(payload);
-    } catch (error) {
-      this.error("failed to send desktop client dimensions:", error);
-    }
-  }
-
   set_packet_handler(callback) {
     this.packet_handler = callback;
   }
@@ -735,9 +714,6 @@ if (
           break;
         case "s":
           protocol.send(data.p);
-          break;
-        case "d":
-          protocol.send_desktop_client_dimensions(data.w, data.h);
           break;
         case "x":
           protocol.set_cipher_out(data.p, data.k);

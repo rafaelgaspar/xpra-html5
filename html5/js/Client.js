@@ -241,7 +241,6 @@ class XpraClient {
     this.desktop_height = 0;
     this.desktop_width = this.container.clientWidth;
     this.desktop_height = this.container.clientHeight;
-    this._desktop_client_dimension_timer = null;
     this.server_remote_logging = false;
     this.server_start_time = -1;
     this.client_start_time = new Date();
@@ -627,30 +626,6 @@ class XpraClient {
     decode_worker.postMessage({cmd: "check", encodings: this.check_encodings});
   }
 
-  // xpra-proxy consumes JSON text WebSocket frames (stripped before xpra hello).
-  _send_desktop_client_dimensions_to_proxy() {
-    const w = this.container ? this.container.clientWidth : 0;
-    const h = this.container ? this.container.clientHeight : 0;
-    if (w <= 0 || h <= 0 || !this.protocol?.send_desktop_client_dimensions) {
-      return;
-    }
-    this.protocol.send_desktop_client_dimensions(w, h);
-  }
-
-  _schedule_desktop_client_dimensions_to_proxy() {
-    if (!this.connected || this.reconnect_in_progress) {
-      return;
-    }
-    if (this._desktop_client_dimension_timer) {
-      clearTimeout(this._desktop_client_dimension_timer);
-    }
-    const me = this;
-    this._desktop_client_dimension_timer = setTimeout(() => {
-      me._desktop_client_dimension_timer = null;
-      me._send_desktop_client_dimensions_to_proxy();
-    }, 750);
-  }
-
   open_protocol() {
     // set protocol to deliver packets to our packet router
     this.protocol.set_packet_handler((packet) => this._route_packet(packet));
@@ -737,10 +712,6 @@ class XpraClient {
       clearTimeout(this.ping_grace_timer);
       this.ping_grace_timer = null;
     }
-    if (this._desktop_client_dimension_timer) {
-      clearTimeout(this._desktop_client_dimension_timer);
-      this._desktop_client_dimension_timer = null;
-    }
   }
 
   set_encoding(encoding) {
@@ -795,7 +766,6 @@ class XpraClient {
     }
     // Re-position floating toolbar menu
     this.position_float_menu();
-    this._schedule_desktop_client_dimensions_to_proxy();
   }
 
   auto_fullscreen_desktop_window()  {
@@ -2429,7 +2399,6 @@ class XpraClient {
     this.cancel_open_timer();
     // call the send_hello function
     this.on_connection_progress("WebSocket connection established", "", 60);
-    this._send_desktop_client_dimensions_to_proxy();
     // wait timeout seconds for a hello, then bomb
     this._send_hello();
     this.on_open();
