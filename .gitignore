@@ -8,3 +8,10 @@
 /install
 /dist
 /MANIFEST
+
+# agent skills
+.cursor/*
+!.cursor/skills
+
+# local planning notes — not part of the public fork
+/PLAN-*.md
