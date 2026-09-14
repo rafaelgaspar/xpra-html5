@@ -2638,6 +2638,11 @@ class XpraClient {
     this.on_connection_progress("Session started", "", 100);
     this.on_connect();
     this.connected = true;
+    // Sync the HTML5 canvas to the browser viewport once layout is stable
+    // (same effect as manually resizing the window on connect).
+    const me = this;
+    setTimeout(() => me._screen_resized(), 0);
+    requestAnimationFrame(() => me._screen_resized());
 
     this.send_keymap();
   }
@@ -2749,14 +2754,6 @@ class XpraClient {
 
       const ul = document.createElement("ul");
 
-      //TODO need to figure out how to do this properly
-      a.addEventListener("mouseenter", function() {
-        this.parentElement.childNodes[1].className = "-visible";
-      });
-      a.addEventListener("mouseleave", function() {
-        this.parentElement.childNodes[1].className = "";
-      });
-
       const xdg_menu_cats = category.Entries;
       for (key in xdg_menu_cats) {
         const entry = xdg_menu_cats[key];
@@ -2786,20 +2783,23 @@ class XpraClient {
         a2.addEventListener("click", function() {
           const ignore = "False";
           me.start_command(this.innerText, this.title, ignore);
-          document.querySelector("#menu_list").className = "-hide";
+          (function(_m) {
+            _m.classList.add("-hide");
+            _m.classList.remove("-visible");
+            if (_m.parentElement) {
+              _m.parentElement.classList.remove("-active");
+            }
+          })(document.querySelector("#menu_list"));
         });
-        a2.addEventListener("mouseenter", function() {
-          this.parentElement.parentElement.className = "-visible";
-        });
-        a2.addEventListener("mouseleave", function() {
-          this.parentElement.parentElement.className = "";
-        });
-
         li2.append(a2);
         ul.append(li2);
       }
       li.append(ul);
       startmenu.append(li);
+    }
+
+    if (window.rebindMenuHandlers) {
+      window.rebindMenuHandlers();
     }
 
     if (this.xdg_menu.length === 0) {
@@ -3060,6 +3060,7 @@ class XpraClient {
       top = 0;
     } else if (this.toolbar_position === "top") {
       left = screen_width / 2 - toolbar_width / 2;
+      top = 0;
     } else if (this.toolbar_position === "top-right") {
       left = screen_width - toolbar_width - 100;
     } else if (this.toolbar_position === "novnc") {
@@ -3211,9 +3212,9 @@ class XpraClient {
       (window) => this.send_close_window(window),
       this.scale
     );
-    if (this.server_is_desktop || this.server_is_shadow) {
+    if (this.server_is_shadow) {
       window.noWindowList();
-    } else if (win && win.decorations) {
+    } else if (win && !win.tray && !win.override_redirect) {
       const trimmedTitle = Utilities.trimString(win.title, 30);
       window.addWindowListItem(win, wid, trimmedTitle);
     }
@@ -3356,7 +3357,7 @@ class XpraClient {
   _process_lost_window(packet) {
     const wid = packet[1];
     const win = this.id_to_window[wid];
-    if (win && win.decorations) {
+    if (win && !win.tray && !win.override_redirect) {
       window.removeWindowListItem(wid);
     }
     try {
