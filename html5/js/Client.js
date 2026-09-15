@@ -3251,9 +3251,9 @@ class XpraClient {
       (window) => this.send_close_window(window),
       this.scale
     );
-    if (this.server_is_shadow) {
-      window.noWindowList();
-    } else if (win && !win.tray && !win.override_redirect) {
+    // Pool/physical shadow: keep toolbar window list (class-filtered windows still
+    // arrive as normal new-window packets; upstream hides the list for all shadow).
+    if (win && !win.tray && !win.override_redirect) {
       const trimmedTitle = Utilities.trimString(win.title, 30);
       window.addWindowListItem(win, wid, trimmedTitle);
     }
