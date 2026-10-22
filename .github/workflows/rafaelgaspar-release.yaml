@@ -1,0 +1,97 @@
+name: rafaelgaspar Release
+
+on:
+  push:
+    branches:
+      - rafaelgaspar
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to publish (branch tip after tag-bump)
+        type: string
+        required: false
+        default: rafaelgaspar
+
+permissions: {}
+
+jobs:
+  release:
+    name: Tag and publish HTML5 tarball
+    if: github.repository == 'rafaelgaspar/xpra-html5'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_call' && inputs.ref || github.sha }}
+
+      - name: Configure git
+        run: |
+          git config user.name "Rafael Antunes"
+          git config user.email "me@rafaelgaspar.xyz"
+
+      - name: Fetch upstream tags
+        run: |
+          if git remote get-url upstream >/dev/null 2>&1; then
+            git remote set-url upstream https://github.com/Xpra-org/xpra-html5.git
+          else
+            git remote add upstream https://github.com/Xpra-org/xpra-html5.git
+          fi
+          git fetch --tags upstream
+
+      - name: Resolve integration tag
+        id: release
+        run: |
+          chmod +x ./.github/scripts/resolve-integration-tag.sh
+          ./.github/scripts/resolve-integration-tag.sh 'v[0-9]*' '^v[0-9]+$'
+
+      - name: Syntax-check patched JS
+        run: |
+          for f in Menu.js MenuCustom.js Client.js Window.js; do
+            node --check "html5/js/${f}"
+          done
+
+      - name: Build upstream-style tarball
+        id: tarball
+        run: |
+          set -euo pipefail
+          version="${{ steps.release.outputs.integration_version }}"
+          staging="$(mktemp -d)"
+          mkdir -p "${staging}/xpra-html5-${version}/html5"
+          cp -a html5/. "${staging}/xpra-html5-${version}/html5/"
+          mkdir -p dist
+          tar -czf "dist/xpra-html5-${version}.tar.gz" -C "${staging}" "xpra-html5-${version}"
+          rm -rf "${staging}"
+          echo "asset=xpra-html5-${version}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push integration tag
+        if: steps.release.outputs.skip_release != 'true'
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          git tag -a "${TAG}" -m "rafaelgaspar integration release ${TAG}"
+          git push origin "${TAG}"
+
+      - name: Create GitHub release
+        if: steps.release.outputs.skip_release != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          ASSET: ${{ steps.tarball.outputs.asset }}
+        run: |
+          body=$(cat <<EOF
+          rafaelgaspar integration release based on upstream ${{ steps.release.outputs.base_tag }}.
+
+          Same layout as upstream \`xpra-html5-*.tar.gz\` (top-level \`xpra-html5-<version>/html5/\`).
+          EOF
+          )
+          gh release create "${TAG}" \
+            --repo rafaelgaspar/xpra-html5 \
+            --title "${TAG}" \
+            --notes "${body}" \
+            --target rafaelgaspar \
+            "dist/${ASSET}"
