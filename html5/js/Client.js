@@ -3873,6 +3873,26 @@ class XpraClient {
     }
   }
 
+  /*
+   * Start audio from a user gesture (ie: clicking the speaker button).
+   * Browsers only let a page start playback from one, so call play() right away
+   * on the new <audio> element instead of waiting for the server's start-of-stream.
+   */
+  user_start_audio() {
+    this._sound_start_receiving();
+    if (this.audio_framework !== "mediasource" || !this.audio) {
+      return;
+    }
+    this.on_audio_state_change("waiting", "user action");
+    const play = this.audio.play();
+    if (play) {
+      play.catch((error) => {
+        this.on_audio_state_change("error", `stream failed:${error}`);
+        this.close_audio();
+      });
+    }
+  }
+
   _send_sound_start() {
     this.log(`audio: requesting ${this.audio_codec} stream from the server`);
     this.send([PACKET_TYPES.sound_control, "start", this.audio_codec]);
