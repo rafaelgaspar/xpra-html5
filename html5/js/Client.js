@@ -3263,9 +3263,9 @@ class XpraClient {
       (window) => this.send_close_window(window),
       this.scale
     );
-    if (this.server_is_desktop || this.server_is_shadow) {
-      window.noWindowList();
-    } else if (win && win.decorations) {
+    // Pool/physical shadow: keep toolbar window list (class-filtered windows still
+    // arrive as normal new-window packets; upstream hides the list for all shadow).
+    if (win && !win.tray && !win.override_redirect) {
       const trimmedTitle = Utilities.trimString(win.title, 30);
       window.addWindowListItem(win, wid, trimmedTitle);
     }
@@ -3408,7 +3408,7 @@ class XpraClient {
   _process_lost_window(packet) {
     const wid = packet[1];
     const win = this.id_to_window[wid];
-    if (win && win.decorations) {
+    if (win && !win.tray && !win.override_redirect) {
       window.removeWindowListItem(wid);
     }
     try {
