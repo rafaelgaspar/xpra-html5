@@ -39,7 +39,11 @@ const MediaSourceConstants = {
     "opus+ogg": 'audio/ogg; codecs="opus"',
   },
 
+  // AAC in MP4 first: it is the one MediaSource codec Safari actually plays
+  // (it reports ogg / opus as supported, but the stream errors out),
+  // Chrome blacklists it for MediaSource and keeps using opus.
   PREFERRED_CODEC_ORDER: [
+    "aac+mpeg4",
     "opus+mka",
     "vorbis+mka",
     "opus+ogg",
@@ -48,7 +52,6 @@ const MediaSourceConstants = {
     "vorbis",
     "speex+ogg",
     "flac+ogg",
-    "aac+mpeg4",
     "mp3+mpeg4",
     "mp3",
     "mp3+id3v2",
