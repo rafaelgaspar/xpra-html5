@@ -123,6 +123,9 @@ class WindowDecoder {
   async process_packet(packet) {
     let coding = packet[6];
     const start = performance.now();
+    // only video frames can be smaller than the area they paint,
+    // the image decoder already resizes scaled pictures:
+    let source_size = null;
     if (coding === "eos" && this.video_decoder) {
       this.video_decoder._close();
       return;
@@ -148,6 +151,7 @@ class WindowDecoder {
         // the error has already been sent to the server
         return;
       }
+      source_size = XpraVideoDecoder.source_size(packet);
     } else {
       this.decode_error(packet, `unsupported encoding: '${coding}'`);
     }
@@ -188,13 +192,14 @@ class WindowDecoder {
     const h = packet[5];
     coding = packet[6];
     const image = packet[7];
-    this.paint_packet(wid, coding, image, x, y, w, h);
+    this.paint_packet(wid, coding, image, x, y, w, h, source_size);
   }
 
   async decode_video_packet(packet) {
     packet = await this.video_decoder.queue_frame(packet);
     if (packet && packet[6].startsWith("frame:")) {
-      const image = await XpraVideoDecoder.crop_padded_frame(packet[7], packet[4], packet[5]);
+      const [source_width, source_height] = XpraVideoDecoder.source_size(packet);
+      const image = await XpraVideoDecoder.crop_padded_frame(packet[7], source_width, source_height);
       if (image !== packet[7]) {
         packet[6] = packet[6].replace("frame:", "bitmap:");
         packet[7] = image;
@@ -203,13 +208,13 @@ class WindowDecoder {
     return packet;
   }
 
-  paint_packet(wid, coding, image, x, y, width, height) {
+  paint_packet(wid, coding, image, x, y, width, height, source_size = null) {
     let painted = false;
     try {
       // Paint the packet on screen refresh (if we can use requestAnimationFrame in the worker)
       if (typeof requestAnimationFrame == "function") {
         requestAnimationFrame(() => {
-          this.do_paint_packet(wid, coding, image, x, y, width, height);
+          this.do_paint_packet(wid, coding, image, x, y, width, height, source_size);
         });
         painted = true;
       }
@@ -220,22 +225,27 @@ class WindowDecoder {
     } finally {
       if (!painted) {
         // Paint right away
-        this.do_paint_packet(wid, coding, image, x, y, width, height);
+        this.do_paint_packet(wid, coding, image, x, y, width, height, source_size);
       }
     }
   }
 
-  do_paint_packet(wid, coding, image, x, y, width, height) {
+  do_paint_packet(wid, coding, image, x, y, width, height, source_size = null) {
     // Update the coding propery
     if (!this.canvas) {
       return;
     }
     let context = this.context;
+    // Scaled video frames are smaller than the area they paint:
+    // draw the whole encoded picture stretched over it,
+    // instead of a window-sized piece of it clipped to its top-left corner.
+    const [source_width, source_height] = source_size || [width, height];
+    const scaled = source_width !== width || source_height !== height;
     if (coding.startsWith("bitmap")) {
       // Bitmap paint
-      context.imageSmoothingEnabled = false;
+      context.imageSmoothingEnabled = scaled;
       context.clearRect(x, y, width, height);
-      context.drawImage(image, 0, 0, width, height, x, y, width, height);
+      context.drawImage(image, 0, 0, source_width, source_height, x, y, width, height);
       this.paint_box(coding, context, x, y, width, height);
     } else if (coding === "scroll") {
       let canvas = this.canvas;
@@ -255,7 +265,8 @@ class WindowDecoder {
         this.paint_box(coding, context, sx, sy, sw, sh);
       }
     } else if (coding.startsWith("frame")) {
-      context.drawImage(image, 0, 0, width, height, x, y, width, height);
+      context.imageSmoothingEnabled = scaled;
+      context.drawImage(image, 0, 0, source_width, source_height, x, y, width, height);
       image.close();
       this.paint_box(coding, context, x, y, width, height);
     }
