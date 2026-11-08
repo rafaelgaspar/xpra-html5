@@ -836,6 +836,29 @@ class XpraClient {
   do_init_keyboard() {
     this.altgr_state = false;
     this.capture_keyboard = false;
+    // Another pool app sharing the same X server (see reclaim_focus()) can
+    // silently steal the keyboard at any moment on its own initiative --
+    // not just when we switch away and back. A tab switch or OS-level
+    // app-switch back to this page is the most common trigger, so reassert
+    // focus on those signals; but the theft can also happen while this tab
+    // stays continuously visible and focused the whole time, which fires
+    // neither event. A low-frequency heartbeat closes that gap: harmless
+    // when nothing was stolen (reclaim_focus() no-ops visually, it's just
+    // an extra focus packet), and bounds the outage to a few seconds
+    // instead of "until you notice and reload" when something was.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        this.reclaim_focus();
+      }
+    });
+    window.addEventListener("focus", () => {
+      this.reclaim_focus();
+    });
+    setInterval(() => {
+      if (!document.hidden) {
+        this.reclaim_focus();
+      }
+    }, 3000);
     // assign the key callbacks
     document.addEventListener("keydown", (e) => {
       const preview_element = $(WINDOW_PREVIEW_SELECTOR);
@@ -2325,6 +2348,22 @@ class XpraClient {
   }
 
   /*
+   * Multiple pool apps can share one physical X server on different
+   * screens (see xpra-proxy's screen pool). X11 has exactly one global
+   * keyboard input focus per server connection, not one per screen, so
+   * another app's session asserting its own focus silently steals the
+   * keyboard away from ours -- our own focused_wid then lies (it still
+   * thinks its window is focused), so set_focus()'s own staleness guard
+   * (if (this.focused_wid === wid) return;) skips resending the focus
+   * packet on a plain click/refocus. Force it through here instead of
+   * trusting that cached state.
+   */
+  reclaim_focus() {
+    this.focused_wid = 0;
+    this.auto_focus();
+  }
+
+  /*
    * Show/Hide the window preview list
    */
   toggle_window_preview(init_callback) {
@@ -3435,9 +3474,9 @@ class XpraClient {
       (window) => this.send_close_window(window),
       this.scale
     );
-    if (this.server_is_desktop || this.server_is_shadow) {
-      window.noWindowList();
-    } else if (win && win.decorations) {
+    // Pool/physical shadow: keep toolbar window list (class-filtered windows still
+    // arrive as normal new-window packets; upstream hides the list for all shadow).
+    if (win && !win.tray && !win.override_redirect) {
       const trimmedTitle = Utilities.trimString(win.title, 30);
       window.addWindowListItem(win, wid, trimmedTitle);
     }
@@ -3586,7 +3625,7 @@ class XpraClient {
   _process_lost_window(packet) {
     const wid = packet[1];
     const win = this.id_to_window[wid];
-    if (win && win.decorations) {
+    if (win && !win.tray && !win.override_redirect) {
       window.removeWindowListItem(wid);
     }
     try {
