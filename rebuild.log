@@ -68,3 +68,11 @@ Auto-merging html5/js/Client.js
 Switched to a new branch 'feat/html5-dark-theme'
 M	rebuild.log
 Auto-merging html5/css/client.css
+[feat/html5-dark-theme cbc7395] feat(html5-dark-theme): dark theme window chrome in client.css
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+==> rebuild feat/html5-custom-css on cbc7395a0ede2d5e969751e8a5f57ba6da2166f2
+Switched to a new branch 'feat/html5-custom-css'
+M	rebuild.log
+Auto-merging README.md
+Auto-merging html5/connect.html
+Auto-merging html5/index.html

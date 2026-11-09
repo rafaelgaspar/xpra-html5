@@ -6,7 +6,7 @@ Customizations ship as **release tarballs** built from the **`rafaelgaspar`** in
 - **Releases:** [rafaelgaspar/xpra-html5 releases](https://github.com/rafaelgaspar/xpra-html5/releases)
 - **Workflow:** linear stacked `feat/*` branches (see [`.cursor/skills/rafaelgaspar-fork/SKILL.md`](.cursor/skills/rafaelgaspar-fork/SKILL.md))
 
-Deploy-specific overlays (`custom.css`, `default-settings.txt`) stay in consumer images, not this fork.
+`custom.css` and HTML client wiring ship in `feat/html5-custom-css`. Deploy-specific `default-settings.txt` stays in k3s-home `desktop-base` only.
 
 ---
 
