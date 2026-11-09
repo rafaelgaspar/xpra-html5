@@ -62,3 +62,9 @@ hint: Disable this message with "git config set advice.addEmbeddedRepo false"
 Switched to a new branch 'feat/html5-connect-resize'
 M	rebuild.log
 Auto-merging html5/js/Client.js
+[feat/html5-connect-resize 3f4d417] feat(html5-connect-resize): sync the canvas to the viewport after connect
+ 2 files changed, 36 insertions(+)
+==> rebuild feat/html5-dark-theme on 3f4d4175448d72d1f8ca16dc4478b2a32cba934d
+Switched to a new branch 'feat/html5-dark-theme'
+M	rebuild.log
+Auto-merging html5/css/client.css

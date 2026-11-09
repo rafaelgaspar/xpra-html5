@@ -179,13 +179,13 @@ div.windowinfocus {
 
 .windowhead {
   height: 30px;
-  color: #000000;
-  background-color: #a0a0a0;
-  border-bottom: 1px solid #c0c0c0;
+  color: #cdcdcd;
+  background-color: #181818;
+  border-bottom: 1px solid #323232;
 }
 
 div.windowinfocus div.windowhead {
-  background-color: #ffffff;
+  background-color: #141414;
 }
 
 .modal {
