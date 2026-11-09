@@ -797,6 +797,7 @@
         client.bandwidth_limit = bandwidth_limit;
         client.steal = steal;
         client.reconnect = reconnect;
+        client.reconnect_count = getintparam("reconnect_count", client.reconnect_count);
         client.swap_keys = swap_keys;
         client.middle_emulation_modifier = middle_emulation_modifier;
         client.on_connection_progress = connection_progress;

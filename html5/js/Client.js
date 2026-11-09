@@ -2453,10 +2453,12 @@ class XpraClient {
   _process_error(packet) {
     const code = Number.parseInt(packet[2]);
     let reconnect = this.reconnect || this.reconnect_attempt < this.reconnect_count;
-    if (reconnect && [0, 1006, 1008, 1010, 1014, 1015].includes(code)) {
-      // don't re-connect unless we had actually managed to connect
-      // (because these specific websocket error codes are likely permanent)
-      reconnect = this.connected;
+    if (reconnect && [0, 1006, 1008, 1010, 1014, 1015].includes(code) && !this.connected) {
+      // These codes are likely permanent for a plain xpra server, but behind a
+      // proxy that starts or leases the backend on demand they are the normal
+      // "not ready yet": retry within the bounded reconnect_count budget
+      // instead of giving up on the first one.
+      reconnect = this.reconnect_attempt < this.reconnect_count;
     }
     this.cerror("websocket error: ", packet[1], "code: ", code, "reason: ", this.disconnect_reason,
       ", connected: ", this.connected, ", reconnect: ", reconnect);

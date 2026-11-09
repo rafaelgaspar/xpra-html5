@@ -83,3 +83,10 @@ Auto-merging html5/index.html
 Switched to a new branch 'feat/html5-keyboard-refocus'
 M	rebuild.log
 Auto-merging html5/js/Client.js
+[feat/html5-keyboard-refocus 94ee564] feat(html5-keyboard-refocus): heartbeat-reclaim keyboard focus, not just on tab switch
+ 2 files changed, 50 insertions(+), 4 deletions(-)
+==> rebuild feat/html5-reconnect-patience on 94ee5648bfa2dc69dfcf78343edbcc8887a2caa0
+Switched to a new branch 'feat/html5-reconnect-patience'
+M	rebuild.log
+Auto-merging html5/index.html
+Auto-merging html5/js/Client.js
