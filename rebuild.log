@@ -76,3 +76,10 @@ M	rebuild.log
 Auto-merging README.md
 Auto-merging html5/connect.html
 Auto-merging html5/index.html
+[feat/html5-custom-css a6e6cd8] feat(html5-custom-css): ship custom.css in the html5 client tree
+ 5 files changed, 1133 insertions(+), 2 deletions(-)
+ create mode 100644 html5/css/custom.css
+==> rebuild feat/html5-keyboard-refocus on a6e6cd8529f95a4accddea6ca412320689dbc420
+Switched to a new branch 'feat/html5-keyboard-refocus'
+M	rebuild.log
+Auto-merging html5/js/Client.js
