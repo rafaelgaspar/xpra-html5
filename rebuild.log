@@ -111,3 +111,10 @@ Auto-merging html5/js/Client.js
 Switched to a new branch 'feat/html5-hello-encoding'
 M	rebuild.log
 Auto-merging html5/js/Client.js
+[feat/html5-hello-encoding dd988c3] feat(html5-hello-encoding): send the chosen encoding in hello encoding_options
+ 3 files changed, 80 insertions(+), 1 deletion(-)
+ create mode 100644 tests/ClientHello.test.mjs
+==> rebuild feat/html5-menu-fixes on dd988c32bc2a29f0eae86be43b51ab26879414a2
+Switched to a new branch 'feat/html5-menu-fixes'
+M	rebuild.log
+Auto-merging html5/js/Client.js
