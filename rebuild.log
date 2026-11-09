@@ -97,3 +97,10 @@ Auto-merging html5/js/Client.js
 Switched to a new branch 'feat/html5-resume-keep-canvas'
 M	rebuild.log
 Auto-merging html5/js/Window.js
+[feat/html5-resume-keep-canvas 5d43f56] feat(html5-resume-keep-canvas): keep the window canvas when the tab is shown again
+ 3 files changed, 51 insertions(+), 1 deletion(-)
+ create mode 100644 tests/WindowResume.test.mjs
+==> rebuild feat/html5-decode-worker-reconnect on 5d43f56b4a5b05f154b4f8573f53147f161fe496
+Switched to a new branch 'feat/html5-decode-worker-reconnect'
+M	rebuild.log
+Auto-merging html5/js/Client.js

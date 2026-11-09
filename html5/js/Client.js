@@ -321,6 +321,7 @@ class XpraClient {
     this.server_ok = false;
     //packet handling
     this.decode_worker = null;
+    this.pending_decode_worker = null;
     this.decode_worker_timeout = 0;
     // floating menu
     this.toolbar_position = "top";
@@ -550,6 +551,7 @@ class XpraClient {
     this.open_protocol();
 
     this.decode_worker_timeout = false;
+    this.cancel_pending_decode_worker();
     if (!DECODE_WORKER) {
       this.supported_encodings = SAFE_ENCODINGS;
       this.offscreen_api = false;
@@ -570,6 +572,7 @@ class XpraClient {
       this.clog("initializing regular decode worker");
       decode_worker = new Worker("js/DecodeWorker.js");
     }
+    this.pending_decode_worker = decode_worker;
     decode_worker.addEventListener(
       "message",
       (e) => {
@@ -593,6 +596,12 @@ class XpraClient {
           this.do_send_damage_sequence(packet_sequence, wid, width, height, -1, message);
           return;
         }
+        // A late reply from an earlier attempt must not replace the worker
+        // that holds the current windows' canvases.
+        if (decode_worker !== this.pending_decode_worker) {
+          return;
+        }
+        this.pending_decode_worker = null;
         switch (data["result"]) {
           case true: {
             const formats = [...data["formats"]];
@@ -625,6 +634,13 @@ class XpraClient {
     );
     this.clog("decode worker will check:", this.check_encodings);
     decode_worker.postMessage({cmd: "check", encodings: this.check_encodings});
+  }
+
+  cancel_pending_decode_worker() {
+    if (this.pending_decode_worker) {
+      this.pending_decode_worker.terminate();
+      this.pending_decode_worker = null;
+    }
   }
 
   open_protocol() {
@@ -680,9 +696,10 @@ class XpraClient {
       win.destroy();
     }
     if (this.decode_worker) {
-      this.decode_worker.postMessage({cmd: "close"});
+      this.decode_worker.terminate();
       this.decode_worker = null;
     }
+    this.cancel_pending_decode_worker();
   }
 
   send_close_window(win) {
