@@ -36,7 +36,8 @@ jobs:
       upstream_url: https://github.com/Xpra-org/xpra-html5.git
       tag_glob: 'v[0-9]*'
       tag_filter: '^v[0-9]+$'
-      tracks: main
+      tracks: branch
+      upstream_branch: v21.x
       # schedule has no workflow_dispatch inputs; passing inputs.* (null) into
       # boolean reusable inputs fails the called job before it starts.
       upstream_tag: ${{ github.event.inputs.upstream_tag || '' }}
