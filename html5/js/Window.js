@@ -582,7 +582,9 @@ class XpraWindow {
   }
 
   resume() {
-    this.init_canvas();
+    // Keep the canvas: it still holds the last frame, and the client asks
+    // the server for a full refresh on resume. Replacing it here showed a
+    // blank window until that refresh arrived.
   }
 
   /**

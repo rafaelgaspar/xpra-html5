@@ -90,3 +90,10 @@ Switched to a new branch 'feat/html5-reconnect-patience'
 M	rebuild.log
 Auto-merging html5/index.html
 Auto-merging html5/js/Client.js
+[feat/html5-reconnect-patience e23ace4] feat(html5-reconnect-patience): keep retrying while the server is still starting
+ 4 files changed, 91 insertions(+), 4 deletions(-)
+ create mode 100644 tests/ClientReconnect.test.mjs
+==> rebuild feat/html5-resume-keep-canvas on e23ace429a16c514f628e8d3e10f31e8aaf86d46
+Switched to a new branch 'feat/html5-resume-keep-canvas'
+M	rebuild.log
+Auto-merging html5/js/Window.js
