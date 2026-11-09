@@ -31,3 +31,34 @@ hint: 	git rm --cached .fork-pack
 hint:
 hint: See "git help submodule" for more information.
 hint: Disable this message with "git config set advice.addEmbeddedRepo false"
+[feat/rafaelgaspar 1e96815] feat(rafaelgaspar): tag integration releases from restacked upstream
+ 13 files changed, 1186 insertions(+), 66 deletions(-)
+ create mode 120000 .claude/skills
+ create mode 100644 .cursor/skills/README.md
+ create mode 100644 .cursor/skills/rafaelgaspar-fork/SKILL.md
+ create mode 160000 .fork-pack
+ create mode 100755 .github/scripts/rebuild-rafaelgaspar.sh
+ create mode 100755 .github/scripts/resolve-integration-tag.sh
+ delete mode 100644 .github/workflows/build.yml
+ delete mode 100644 .github/workflows/ci.yml
+ create mode 100644 .github/workflows/rafaelgaspar-release.yaml
+ create mode 100644 .github/workflows/rafaelgaspar-tag-bump.yaml
+ create mode 100644 rebuild.log
+[feat/rafaelgaspar 40c43f1] feat(rafaelgaspar): tag integration releases from restacked upstream
+ Date: Mon Nov 9 17:24:04 2026 +0000
+ 13 files changed, 1263 insertions(+), 66 deletions(-)
+ create mode 120000 .claude/skills
+ create mode 100644 .cursor/skills/README.md
+ create mode 100644 .cursor/skills/rafaelgaspar-fork/SKILL.md
+ create mode 160000 .fork-pack
+ create mode 100755 .github/scripts/rebuild-rafaelgaspar.sh
+ create mode 100755 .github/scripts/resolve-integration-tag.sh
+ delete mode 100644 .github/workflows/build.yml
+ delete mode 100644 .github/workflows/ci.yml
+ create mode 100644 .github/workflows/rafaelgaspar-release.yaml
+ create mode 100644 .github/workflows/rafaelgaspar-tag-bump.yaml
+ create mode 100644 rebuild.log
+==> rebuild feat/html5-connect-resize on 40c43f16608d56d59b79a410c3f144957a966b45
+Switched to a new branch 'feat/html5-connect-resize'
+M	rebuild.log
+Auto-merging html5/js/Client.js

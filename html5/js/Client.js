@@ -2648,6 +2648,11 @@ class XpraClient {
     this.on_connection_progress("Session started", "", 100);
     this.on_connect();
     this.connected = true;
+    // Sync the HTML5 canvas to the browser viewport once layout is stable
+    // (same effect as manually resizing the window on connect).
+    const me = this;
+    setTimeout(() => me._screen_resized(), 0);
+    requestAnimationFrame(() => me._screen_resized());
 
     // safer to set the "force" flag for older servers:
     this.send_keymap(true);
