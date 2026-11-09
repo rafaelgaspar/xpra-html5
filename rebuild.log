@@ -1,0 +1,33 @@
+==> integration branch: rafaelgaspar
+==> upstream base: upstream/v21.x (768ae2846744d8cc82f39769a55eee726eeef0f3)
+==> skip feat/html5-shadow-window-list: same tree as previous layer
+==> stack order (10 branches):
+  - feat/rafaelgaspar (base: upstream/v21.x)
+  - feat/html5-connect-resize (base: feat/rafaelgaspar)
+  - feat/html5-dark-theme (base: feat/html5-connect-resize)
+  - feat/html5-custom-css (base: feat/html5-dark-theme)
+  - feat/html5-keyboard-refocus (base: feat/html5-custom-css)
+  - feat/html5-reconnect-patience (base: feat/html5-keyboard-refocus)
+  - feat/html5-resume-keep-canvas (base: feat/html5-reconnect-patience)
+  - feat/html5-decode-worker-reconnect (base: feat/html5-resume-keep-canvas)
+  - feat/html5-hello-encoding (base: feat/html5-decode-worker-reconnect)
+  - feat/html5-menu-fixes (base: feat/html5-hello-encoding)
+==> stack tip: feat/html5-menu-fixes
+==> mergiraf merge driver enabled (mergiraf 0.20.0)
+==> rebuild feat/rafaelgaspar on 768ae2846744d8cc82f39769a55eee726eeef0f3
+Switched to a new branch 'feat/rafaelgaspar'
+warning: adding embedded git repository: .fork-pack
+hint: You've added another git repository inside your current repository.
+hint: Clones of the outer repository will not contain the contents of
+hint: the embedded repository and will not know how to obtain it.
+hint: If you meant to add a submodule, use:
+hint:
+hint: 	git submodule add <url> .fork-pack
+hint:
+hint: If you added this path by mistake, you can remove it from the
+hint: index with:
+hint:
+hint: 	git rm --cached .fork-pack
+hint:
+hint: See "git help submodule" for more information.
+hint: Disable this message with "git config set advice.addEmbeddedRepo false"
