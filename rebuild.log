@@ -104,3 +104,10 @@ Auto-merging html5/js/Window.js
 Switched to a new branch 'feat/html5-decode-worker-reconnect'
 M	rebuild.log
 Auto-merging html5/js/Client.js
+[feat/html5-decode-worker-reconnect c22c9f5] feat(html5-decode-worker-reconnect): stop earlier decode workers on reconnect
+ 3 files changed, 128 insertions(+), 1 deletion(-)
+ create mode 100644 tests/ClientDecodeWorker.test.mjs
+==> rebuild feat/html5-hello-encoding on c22c9f509ad81b1c4d67e2af80cfc0a4e9e759a1
+Switched to a new branch 'feat/html5-hello-encoding'
+M	rebuild.log
+Auto-merging html5/js/Client.js
