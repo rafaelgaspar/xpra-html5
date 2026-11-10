@@ -121,3 +121,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-decode-worker-reconnect 01e7ae6] feat(html5-decode-worker-reconnect): stop earlier decode workers on reconnect
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-hello-encoding on 01e7ae604c9d7ec5ac480b858dd13dbbdc0b2da8
+Switched to a new branch 'feat/html5-hello-encoding'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
