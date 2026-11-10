@@ -3,7 +3,7 @@
 # Xpra is released under the terms of the GNU GPL v2, or, at your option, any
 # later version. See the file COPYING for details.
 
-%define version 21
+%define version 22
 %define release 1.r0%{?dist}
 %define minifier uglifyjs
 %define python python3
@@ -22,23 +22,15 @@ BuildArch:			noarch
 BuildRoot:			%{_tmppath}/%{name}-%{version}-root
 BuildRequires:		python3-setuptools
 Conflicts:			xpra < 2.1
-%if 0%{?el7}
-%define minifier ""
-%define python python2
-BuildRequires:		python2
-%else
 BuildRequires:		uglify-js
 BuildRequires:		python3
-%endif
 #don't depend on this package,
 #so we can also install on a pure RHEL distro:
-%if 0%{?el10}%{?el9}%{?el8}%{?el7}
-BuildRequires:		system-logos
 %if 0%{?el10}%{?el9}%{?el8}
+BuildRequires:		system-logos
 BuildRequires:		system-backgrounds
 Recommends:			system-logos
 Recommends:			system-backgrounds
-%endif
 %else
 BuildRequires:		desktop-backgrounds-compat
 Recommends:		    desktop-backgrounds-compat
@@ -62,9 +54,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/xpra/html5-client
 # Ensure there are no executable files:
 find %{buildroot}%{_datadir}/xpra/www/ -type f -exec chmod 0644 {} \;
 mkdir -p %{buildroot}/usr/share/doc/xpra-html5/
-%if 0%{?el8}%{?fedora}
 cp LICENSE %{buildroot}/usr/share/doc/xpra-html5/
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -73,11 +63,22 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_sysconfdir}/xpra/html5-client
 %{_datadir}/xpra/www
-%if 0%{?el8}%{?fedora}
 %doc LICENSE
-%endif
 
 %changelog
+* Sat Oct 17 2026 Antoine Martin <antoine@xpra.org> 22-0-1
+- require Xpra 7.0 or later and advertise the modern protocol
+- use modern window, cursor and display packets and capabilities, including shadow session detection
+- send modern keyboard and pointer events
+- use modern clipboard data, file transfer and printer capabilities
+- negotiate audio capabilities asynchronously and update notification, menu, logging and connection packets
+- advertise packet encoder and compressor lists and keep hello packets below 16 KiB
+- decode floating-point values in server information packets
+- fix chunked download completion, optional transfer IDs and file metadata
+- detect inherited clipboard and connection APIs for image clipboard support and connection status updates
+- preserve PNG clipboard bytes and request IDs in clipboard replies
+- document Xpra 7+ compatibility and manual validation results
+
 * Mon May 11 2026 Antoine Martin <antoine@xpra.org> 20-0-1
 - new printer subsystem prefix
 - support new keyboard mapping packet with newer servers

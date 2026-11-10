@@ -13,7 +13,7 @@ import os.path
 from typing import AnyStr
 from subprocess import Popen, PIPE
 
-VERSION = "21"
+VERSION = "22"
 AUTHOR = "Antoine Martin"
 AUTHOR_EMAIL = "antoine@xpra.org"
 
@@ -377,7 +377,6 @@ def install_html5(root="/", install_dir="/usr/share/xpra/www/", config_dir="/etc
             "/usr/share/backgrounds/images/*default*.png",
             "/usr/share/backgrounds/*default*png",
             "/usr/share/backgrounds/gnome/adwaita*.jpg",  # Debian Stretch
-            "/usr/share/backgrounds/images/*jpg",  # CentOS 7
         ]
         if paths:
             extra_symlinks = {"background.png": paths}

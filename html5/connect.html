@@ -37,7 +37,7 @@
       <form class="form-signin" action="./index.html">
         <img src="icons/xpra-logo.png" alt="xpra logo" />
         <h2 class="form-signin-heading">Xpra HTML5 Client</h2>
-        <h5>Version 21</h5>
+        <h5>Version 22</h5>
 
         <div id="alert-disconnect" class="alert alert-info" role="alert" style="display: none">
           <p>You were disconnected for the following reason:</p>
@@ -346,10 +346,18 @@
                   </select>
                 </li>
                 <li class="list-group-item">
+                  Window border:
+                  <select id="border">
+                    <option value="">Auto (server default)</option>
+                    <option value="no">None</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                  </select>
+                </li>
+                <li class="list-group-item">
                   <input type="checkbox" id="video" />
-                  <span>Video
-                    <input type="checkbox" id="mediasource_video" /> Native
-                    decoding</span>
+                  <span>Video</span>
                 </li>
                 <li class="list-group-item">
                   <span>Server Path:</span>
@@ -401,6 +409,7 @@
         "encryption",
         "scroll_reverse_y",
         "middle_emulation_modifier",
+        "border",
         "vrefresh",
         "clipboard_preferred_format",
       ];
@@ -420,7 +429,6 @@
         "swap_keys",
         "scroll_reverse_x",
         "video",
-        "mediasource_video",
         "ssl",
         "insecure",
         "webtransport",
@@ -561,7 +569,7 @@
             i++;
           }
         }
-        console.log("opening client url=", url);
+        console.log("opening client url=", Utilities.obfuscateURL(url));
         window.location = url;
       }
 
@@ -1041,13 +1049,13 @@
         function load_icon(icon, src) {
           const url = get_host_address(true) + src;
           icon.onload = function() {
-            Utilities.log("loaded icon", url);
+            Utilities.log("loaded icon", Utilities.obfuscateURL(url));
           };
           icon.onerror = function(e) {
-            Utilities.error("error loading icon", url, ":", e);
+            Utilities.error("error loading icon", Utilities.obfuscateURL(url), ":", e);
           };
           icon.onabort = function(e) {
-            Utilities.error("aborted loading icon", url, ":", e);
+            Utilities.error("aborted loading icon", Utilities.obfuscateURL(url), ":", e);
           };
           icon.src = url;
         }
@@ -1385,7 +1393,7 @@
           const url = get_host_address();
           if (url != host_address) {
             host_address = url;
-            Utilities.debug("host address changed to", url);
+            Utilities.debug("host address changed to", Utilities.obfuscateURL(url));
             init_mode();
           }
         }
@@ -1519,7 +1527,6 @@
           "reconnect",
           "swap_keys",
           "video",
-          "mediasource_video",
           "floating_menu",
           "autohide",
           "clock",
@@ -1543,13 +1550,12 @@
         document.getElementById("scroll_reverse_y").value = scroll_reverse_y;
         const middle_emulation_modifier = getstrparam("middle_emulation_modifier") || "";
         document.getElementById("middle_emulation_modifier").value = middle_emulation_modifier;
-
-        function toggle_mediasource_video() {
-          $("#mediasource_video").prop("disabled", !video.checked);
+        const border_select = document.getElementById("border");
+        border_select.value = getstrparam("border") || "";
+        if (border_select.selectedIndex < 0) {
+          // not one of the options, ie: "auto" or "orange,8":
+          border_select.value = "";
         }
-        const video = document.getElementById("video");
-        video.onchange = toggle_mediasource_video;
-        toggle_mediasource_video();
 
         const floating_menu_checkbox = $("#floating_menu");
 

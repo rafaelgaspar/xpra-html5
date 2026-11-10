@@ -1,3 +1,15 @@
+## rafaelgaspar fork
+
+This repository is a [MPL-2.0](LICENSE) fork of [Xpra-org/xpra-html5](https://github.com/Xpra-org/xpra-html5).
+Customizations ship as **release tarballs** built from the **`rafaelgaspar`** integration branch:
+
+- **Releases:** [rafaelgaspar/xpra-html5 releases](https://github.com/rafaelgaspar/xpra-html5/releases)
+- **Workflow:** linear stacked `feat/*` branches (see [`.cursor/skills/rafaelgaspar-fork/SKILL.md`](.cursor/skills/rafaelgaspar-fork/SKILL.md))
+
+Deploy-specific overlays (`custom.css`, `default-settings.txt`) stay in consumer images, not this fork.
+
+---
+
 # HTML5 client for Xpra
 
 Simply point your browser to the contents of the `html5` folder,
@@ -75,4 +87,5 @@ The _advanced options_ of the connection dialog exposes some of them:
 
 # Compatibility
 
-This client is compatible with any [currently supported version](https://github.com/Xpra-org/xpra/wiki/Versions) of xpra.
+This client requires Xpra 7.0 or later and uses the modern protocol dialect.
+See [protocol compatibility and manual validation](./docs/Protocol-v7.md) for details.

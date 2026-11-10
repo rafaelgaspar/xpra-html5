@@ -25,15 +25,24 @@ class XpraVideoDecoder {
   constructor() {
     this.initialized = false;
     this.had_first_key = false;
+    // Set once the server has been told that we need a key frame (by a decode error):
+    // until one arrives, delta frames cannot be decoded and are skipped without another error.
+    this.key_frame_requested = false;
     this.draining = false;
 
     this.decoder_queue = [];
     this.decoded_frames = [];
     this.erroneous_frame = null;
 
+    this.coding = null;
     this.codec = null;
+    // the YUV colour range the decoder is currently configured for;
+    // the server signals it per frame and it defaults to full-range:
+    this.full_range = true;
     this.vp9_params = null;
     this.frameWaitTimeout = 1; // Interval for wait loop while frame is being decoded
+    // Incremented by _close(), so frames still waiting for the decoder that was closed give up:
+    this.generation = 0;
 
     this.frame_threshold = 250;
   }
@@ -55,9 +64,17 @@ class XpraVideoDecoder {
     }
   }
 
-  init(coding) {
+  // the server omits the "full-range" option for full-range frames (the default)
+  // and only sends it as false for studio-range, so anything but an explicit false is full:
+  static full_range_from_options(options) {
+    return !(options && options["full-range"] === false);
+  }
+
+  init(coding, options) {
     this.draining = false;
 
+    this.coding = coding;
+    this.full_range = XpraVideoDecoder.full_range_from_options(options);
     this.codec = this.resolveCodec(coding);
     this.videoDecoder = new VideoDecoder({
       output: this._on_decoded_frame.bind(this),
@@ -70,16 +87,78 @@ class XpraVideoDecoder {
       codec: this.codec,
       hardwareAcceleration: "no-preference",
       optimizeForLatency: true,
+      // match the colour range the server encoded with, so the browser maps YUV to RGB correctly
+      // (most important for vp8, which has no colour range in its bitstream):
       colorSpace: new VideoColorSpace({
-        fullRange: true
+        fullRange: this.full_range
       })
     });
     this.last_timestamp = 0;
     this.initialized = true;
   }
 
+  /*
+   * Safari reports the encoder's padded size (ie: 546x278 coded as 576x288)
+   * as the frame's display size and visible rectangle, so drawing the frame
+   * into its width x height box shrinks it and the content jumps whenever
+   * video and lossless updates alternate.
+   * Convert such frames to an ImageBitmap, which the bitmap paint path crops
+   * from the top-left corner like any other bitmap.
+   * Frames that already have the expected size are returned unchanged.
+   */
+  /*
+   * Resolve or reject like `promise`, but reject if it has not settled after `timeout_ms`.
+   * Some browsers (ie: Safari in a background tab) suspend or reclaim the decoder,
+   * so a frame may never come out: callers must not wait forever.
+   * If the promise resolves after the deadline, `release` is called with its value
+   * so that the late frame or bitmap can be closed.
+   */
+  static with_deadline(promise, timeout_ms, release) {
+    let timer = 0;
+    let expired = false;
+    const deadline = new Promise((resolve, reject) => {
+      timer = setTimeout(() => {
+        expired = true;
+        reject(new Error(`no decoded frame after ${timeout_ms}ms`));
+      }, timeout_ms);
+    });
+    promise.then((value) => {
+      if (expired && release) {
+        release(value);
+      }
+    }, () => {});
+    return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
+  }
+
+  // The size of the picture the server encoded:
+  // smaller than the area to paint when the server scaled the video down.
+  static source_size(packet) {
+    const scaled_size = (packet[10] || {})["scaled_size"];
+    if (scaled_size) {
+      return [scaled_size[0], scaled_size[1]];
+    }
+    return [packet[4], packet[5]];
+  }
+
+  static async crop_padded_frame(frame, width, height) {
+    if (frame.displayWidth === width && frame.displayHeight === height) {
+      return frame;
+    }
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(frame);
+    } catch (error) {
+      console.warn("failed to convert the padded video frame to a bitmap:", error);
+      return frame;
+    }
+    frame.close();
+    return bitmap;
+  }
+
   resolveCodec(coding) {
-    if (coding === "h264") return "avc1.42C01E";
+    // high profile, level 4.0: matches the `h264` encoding options we send to the server,
+    // and every hardware decoder handles it - a higher level would risk a software fallback
+    if (coding === "h264") return "avc1.640028";
     if (coding === "vp8") return "vp8";
     if (coding === "vp9") return `vp09${this.vp9_params}`;
     throw `No codec defined for coding ${coding}`;
@@ -154,13 +233,30 @@ class XpraVideoDecoder {
       const data = packet[7];
       const packet_sequence = packet[8];
 
-      // H264 (avc1.42C01E) needs key frames
+      // the colour range can change mid-stream; the server emits a keyframe carrying the new
+      // range, so re-create the decoder with the matching colour space before decoding it:
+      const full_range = XpraVideoDecoder.full_range_from_options(options);
+      if (this.initialized && full_range !== this.full_range && this.coding) {
+        this._close();
+        this.init(this.coding, options);
+      }
+
+      // H264 needs key frames
       if (
         this.codec.startsWith("avc1") &&
         !this.had_first_key &&
         !(options["type"] &&
         options["type"] == "IDR")
       ) {
+        if (this.key_frame_requested) {
+          // Frames the server sent before it got our decode error:
+          // acknowledge them without painting anything, its next key frame repaints everything.
+          packet[6] = "void";
+          packet[7] = null;
+          resolve(packet);
+          return;
+        }
+        this.key_frame_requested = true;
         reject(
           new Error(
             `first h264 frame must be a key frame but packet ${packet_sequence} is not: ${options}`
@@ -179,6 +275,7 @@ class XpraVideoDecoder {
       }
 
       this.had_first_key = true;
+      this.key_frame_requested = false;
       this.decoder_queue.push({
         p: packet
       });
@@ -194,7 +291,10 @@ class XpraVideoDecoder {
         reject(
             new Error("failed to decode chunk: " + error)
         );
+        return;
       }
+
+      const generation = this.generation;
 
       let frame_out = this.decoded_frames.filter(
         (p) => p[8] === packet_sequence
@@ -202,6 +302,11 @@ class XpraVideoDecoder {
       while (frame_out.length === 0) {
         // Await our frame
         await new Promise((r) => setTimeout(r, this.frameWaitTimeout));
+        if (this.generation !== generation) {
+          // The decoder was closed or reset whilst we were waiting for this frame
+          reject(new Error("video decoder was reset"));
+          return;
+        }
         if (this.erroneous_frame != null) {
           // The last frame was erroneous, break the wait loop
           break;
@@ -224,6 +329,7 @@ class XpraVideoDecoder {
   }
 
   _close() {
+    this.generation += 1;
     if (this.initialized) {
       if (this.videoDecoder.state !== "closed") {
         this.videoDecoder.close();

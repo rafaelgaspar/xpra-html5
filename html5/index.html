@@ -28,7 +28,6 @@
     <script type="text/javascript" src="js/lib/brotli_decode.js"></script>
     <script type="text/javascript" src="js/lib/hmac.js"></script>
 
-    <script type="text/javascript" src="js/lib/jsmpeg.js"></script>
     <script type="text/javascript" src="js/lib/aurora/aurora.js"></script>
     <script type="text/javascript" src="js/lib/aurora/aurora-xpra.js"></script>
 
@@ -190,7 +189,7 @@
 
     <div id="about">
       <h2>Xpra HTML5 Client</h2>
-      <h3>Version 21</h3>
+      <h3>Version 22</h3>
       <span>
         Copyright (c) 2013 Antoine Martin &lt;antoine@xpra.org&gt;
         <br />
@@ -277,9 +276,9 @@
         let v = Utilities.getparam(prop);
         if (v == undefined && prop in default_settings) {
           v = default_settings[prop];
-          clog("using", prop, "=", v, " from default settings");
+          clog("using", prop, "=", Utilities.obfuscateParameter(prop, v), " from default settings");
         } else if (v != null && v != "") {
-          clog("using", prop, "=", v, " from parameters");
+          clog("using", prop, "=", Utilities.obfuscateParameter(prop, v), " from parameters");
         }
         return v;
       };
@@ -376,7 +375,7 @@
       function download_file(event) {
         $(".menu-content").slideUp();
         const command = ["xpra", "send-file"]
-        client.send(["start-command", "Client-Download-File", command, true, true]);
+        client.send([PACKET_TYPES.command_start, "Client-Download-File", command, true, true]);
       }
 
       function cleanup_dialogs() {
@@ -670,7 +669,6 @@
         const exit_with_client = getboolparam("exit_with_client", false);
         const sharing = getboolparam("sharing", false);
         const video = getboolparam("video", true);
-        const mediasource_video = getboolparam("mediasource_video", false);
         const remote_logging = getboolparam("remote_logging", true);
         const insecure = getboolparam("insecure", false);
         const ignore_audio_blacklist = getboolparam("ignore_audio_blacklist", false);
@@ -693,6 +691,7 @@
         const scroll_reverse_x = getboolparam("scroll_reverse_x", false);
         const scroll_reverse_y = getboolautoparam("scroll_reverse_y", null);
         const middle_emulation_modifier = getstrparam("middle_emulation_modifier") || "";
+        const border = getstrparam("border") || "";
         const floating_menu = getboolparam("floating_menu", true);
         const toolbar_position = getstrparam("toolbar_position");
         const autohide = getboolparam("autohide", false);
@@ -798,6 +797,7 @@
         client.reconnect = reconnect;
         client.swap_keys = swap_keys;
         client.middle_emulation_modifier = middle_emulation_modifier;
+        client.border = border;
         client.on_connection_progress = connection_progress;
         client.scroll_reverse_x = scroll_reverse_x;
         client.scroll_reverse_y = scroll_reverse_y;
@@ -830,19 +830,6 @@
           client.check_encodings.push("h264");
           client.check_encodings.push("vp8");
           client.check_encodings.push("vp9");
-
-          if (JSMpeg && JSMpeg.Renderer && JSMpeg.Decoder) {
-            //TODO: should be moved to 'check_encodings'
-            //and added to the decode worker:
-            client.supported_encodings.push("mpeg1");
-          }
-          if (mediasource_video) {
-            client.supported_encodings.push(
-              "vp8+webm",
-              "h264+mp4",
-              "mpeg4+mp4"
-            );
-          }
         }
         if (encoding) {
           // the primary encoding
@@ -969,6 +956,7 @@
               scroll_reverse_x: scroll_reverse_x,
               scroll_reverse_y: scroll_reverse_y,
               middle_emulation_modifier: middle_emulation_modifier,
+              border: border,
               reconnect: reconnect,
               action: action,
               display: display,
@@ -987,7 +975,6 @@
               sharing: sharing,
               steal: steal,
               video: video,
-              mediasource_video: mediasource_video,
               remote_logging: remote_logging,
               ignore_audio_blacklist: ignore_audio_blacklist,
               floating_menu: floating_menu,
@@ -1047,13 +1034,15 @@
             }
             try {
               const modifiers = [];
-              const keyval = keycode;
+              //not an X11 keysym, see `XpraClient._keyb_process`
+              const keyval = 0;
               const group = 0;
               const wid = client.topwindow;
-              let packet = ["key-action", wid, keyname, true, modifiers, keyval, str, keycode, group];
+              const props = {"modifiers": modifiers, "keyval": keyval, "string": str, "keycode": keycode, "group": group};
+              let packet = [PACKET_TYPES.keyboard_event, wid, keyname, true, props];
               cdebug("keyboard", packet);
               client.send(packet);
-              packet = ["key-action", wid, keyname, false, modifiers, keyval, str, keycode, group];
+              packet = [PACKET_TYPES.keyboard_event, wid, keyname, false, props];
               cdebug("keyboard", packet);
               client.send(packet);
             } catch (e) {
@@ -1227,31 +1216,49 @@
       }
 
       function init_audio(client) {
+        function update_sound_button() {
+          const state = client.audio_state;
+          let tooltip;
+          let data_icon;
+          const sound_button_element = $("#sound_button");
+          if (state === "disabled") {
+            data_icon = "volume_up";
+            tooltip = "audio is not available";
+            sound_button_element.css("color", "#777");
+          } else if (state === "playing") {
+            data_icon = "volume_up";
+            tooltip = "audio playing,\nclick to stop";
+          } else if (state === "waiting") {
+            data_icon = "volume_up";
+            tooltip = "audio buffering";
+          } else if (client.audio_signal) {
+            //the server has something to play and we are not listening to it:
+            data_icon = "volume_off";
+            tooltip = "audio is available,\nclick to start";
+          } else {
+            data_icon = "volume_off";
+            tooltip = "audio off,\nclick to start";
+          }
+          //only draw attention to the speaker if the user can actually turn audio on:
+          const attention = client.audio_signal &&
+            state !== "disabled" &&
+            state !== "playing" &&
+            state !== "waiting";
+          sound_button_element.attr("data-icon", data_icon);
+          sound_button_element.attr("title", tooltip);
+          sound_button_element.toggleClass("icon-attention", attention);
+        }
         client.on_audio_state_change = function(newstate, details) {
           if (client.audio_state === newstate) {
             return;
           }
           client.audio_state = newstate;
-          let tooltip;
-          let data_icon;
-          const sound_button_element = $("#sound_button");
-          if (newstate === "disabled") {
-            data_icon = "volume_up";
-            tooltip = "audio is not available";
-            sound_button_element.css("color", "#777");
-          } else if (newstate === "playing") {
-            data_icon = "volume_up";
-            tooltip = "audio playing,\nclick to stop";
-          } else if (newstate === "waiting") {
-            data_icon = "volume_up";
-            tooltip = "audio buffering";
-          } else {
-            data_icon = "volume_off";
-            tooltip = "audio off,\nclick to start";
-          }
           clog("audio-state:", newstate);
-          sound_button_element.attr("data-icon", data_icon);
-          sound_button_element.attr("title", tooltip);
+          update_sound_button();
+        };
+        client.on_audio_signal_change = function(signal) {
+          clog("audio-signal:", signal);
+          update_sound_button();
         };
         $("#sound_button").click(function() {
           clog("speaker icon clicked, audio_enabled=", client.audio_enabled);
@@ -1265,8 +1272,7 @@
             client.close_audio();
           } else {
             client.on_audio_state_change("waiting", "user action");
-            client._audio_start_stream();
-            client._sound_start_receiving();
+            client.user_start_audio();
           }
         });
       }
@@ -1633,19 +1639,12 @@
           }
         });
 
-        // Prevent stuck keys.
+        // Prevent stuck keys and buttons.
         $(window).on("blur", (e) => {
-          if (
-            client.last_key_packet.length > 2 &&
-            client.last_keycode_pressed > 0
-          ) {
-            console.log("clearing keycode: " + client.last_keycode_pressed);
-            let key_packet = client.last_key_packet;
-            // Set pressed = false to indicate key up.
-            key_packet[3] = false;
-            client.send(key_packet);
-            client.last_key_packet = [];
-          }
+          // we won't get the 'mouseup' events
+          // for any buttons released whilst we don't have the focus:
+          client.release_buttons();
+          client.release_keys();
         });
       }
 
@@ -1654,7 +1653,7 @@
         xhr.open("GET", "./default-settings.txt");
         xhr.onload = function() {
           const tmp_default_settings = Utilities.parseINIString(xhr.responseText);
-          clog("network", "got default settings:", tmp_default_settings);
+          clog("network", "got default settings:", Utilities.obfuscateSettings(tmp_default_settings));
           //update the default settings object
           //so getparam will look there
           for (const key in tmp_default_settings) {

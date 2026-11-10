@@ -59,6 +59,10 @@ class XpraWindow {
     this.y = y;
     this.w = w;
     this.h = h;
+    // resize counter: used to prevent resize loops with the server,
+    // it is echoed back unchanged in window-configure packets
+    // and only updated when the server tells us to resize / move-resize
+    this.resize_counter = 0;
     // scaling for client display width override
     this.scale = scale;
 
@@ -268,14 +272,6 @@ class XpraWindow {
     }
     if (this.metadata["desktop"]) {
       return true;
-    }
-    // backwards compatibility for xpra server <= v6.4 :
-    // the 'desktop' attribute may not be set
-    const wm_class = this.metadata["class-instance"] || [];
-    for (const element of wm_class) {
-      if (element === "xpra-desktop" || element === "Xpra-Desktop") {
-        return true;
-      }
     }
     return this.has_windowtype(["DESKTOP"]);
   }
@@ -869,13 +865,13 @@ class XpraWindow {
     const geom = this.get_internal_geometry();
     this.set_minimized(!this.minimized);
     if (this.minimized) {
-      this.client.send([PACKET_TYPES.unmap_window, this.wid, true]);
+      this.client.send([PACKET_TYPES.window_unmap, this.wid, true]);
       this.stacking_layer = 0;
       if (this.client.focused_wid === this.wid) {
         this.client.auto_focus();
       }
     } else {
-      this.client.send([PACKET_TYPES.map_window, this.wid, geom.x, geom.y, geom.w, geom.h, this.client_properties]);
+      this.client.send([PACKET_TYPES.window_map, this.wid, geom.x, geom.y, geom.w, geom.h, this.client_properties]);
       //ugly force focus switch:
       this.client.focused_wid = 0;
       this.client.set_focus(this);
@@ -1105,8 +1101,9 @@ class XpraWindow {
    * Things ported from original shape
    */
 
-  move_resize(x, y, w, h) {
-    this.debug("geometry", "move_resize(", x, y, w, h, ")");
+  move_resize(x, y, w, h, resize_counter = this.resize_counter) {
+    this.debug("geometry", "move_resize(", x, y, w, h, resize_counter, ")");
+    this.resize_counter = resize_counter;
     // only do it if actually changed!
     if (this.w !== w || this.h !== h || this.x !== x || this.y !== y) {
       this.w = w;
@@ -1128,9 +1125,9 @@ class XpraWindow {
     this.move_resize(x, y, this.w, this.h);
   }
 
-  resize(w, h) {
-    this.debug("geometry", "resize(", w, h, ")");
-    this.move_resize(this.x, this.y, w, h);
+  resize(w, h, resize_counter = this.resize_counter) {
+    this.debug("geometry", "resize(", w, h, resize_counter, ")");
+    this.move_resize(this.x, this.y, w, h, resize_counter);
   }
 
   initiate_moveresize(mousedown_event, x_root, y_root, direction, button, source_indication) {
@@ -1414,9 +1411,7 @@ class XpraWindow {
         paint_error("h264 decoding is only supported via the decode workers");
         this.may_paint_now();
       } else if (coding === "scroll") {
-        // newer servers use options,
-        // older ones overload the image data:
-        const scrolls = options["scroll"] || img_data;
+        const scrolls = options["scroll"] || [];
         for (let index = 0, stop = scrolls.length; index < stop; ++index) {
           const scroll_data = scrolls[index];
           this.debug("draw", "scroll", index, ":", scroll_data);

@@ -1,7 +1,33 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [22.0] 2026-10-17
+
+- [require Xpra 7.0 or later and advertise the modern protocol](https://github.com/Xpra-org/xpra-html5/commit/c452c7e236752442790182eac19caad50b7ec38f)
+- [use modern window, cursor and display packets and capabilities, including shadow session detection](https://github.com/Xpra-org/xpra-html5/commit/dc1bb1164374c565d6343b56e0be4f7a55f7513d)
+- [send modern keyboard and pointer events](https://github.com/Xpra-org/xpra-html5/commit/ca22c21a81727dfb7615b805070aeea89f653442)
+- [use modern clipboard data, file transfer and printer capabilities](https://github.com/Xpra-org/xpra-html5/commit/26710d03dc69564e4814ef6bd7fa4693a929c579)
+- [negotiate audio capabilities asynchronously and update notification, menu, logging and connection packets](https://github.com/Xpra-org/xpra-html5/commit/cc131b2e231095f77cd735462eac9dd0f066d855)
+- [advertise packet encoder and compressor lists and keep hello packets below 16 KiB](https://github.com/Xpra-org/xpra-html5/commit/7e98ce3e6edae24400549457e111967e1a75be16)
+- [decode floating-point values in server information packets](https://github.com/Xpra-org/xpra-html5/commit/a1182df1b471801209c36303b768953f244ca7f0)
+- [fix chunked download completion, optional transfer IDs and file metadata](https://github.com/Xpra-org/xpra-html5/commit/b96afd125c98eb0c7c73c5fbcc7914806b41ed2e)
+- [detect inherited clipboard and connection APIs for image clipboard support and connection status updates](https://github.com/Xpra-org/xpra-html5/commit/530cfbff958433cbe467d1ed1688901d116e7653)
+- [preserve PNG clipboard bytes and request IDs in clipboard replies](https://github.com/Xpra-org/xpra-html5/commit/432c91e4cc9268abeb1979f56454de458f822f3b)
+- [document Xpra 7+ compatibility and manual validation results](https://github.com/Xpra-org/xpra-html5/commit/98b2573d183f27bc761cce2446d8e6587d8c0ade)
+
 ## [21.0] 2026-05-11
+- support the window border provided by the server, which can be overriden from the connect dialog's advanced options
+- remove RHEL 7 / CentOS 7 support
+- release the Alt key which closes the window preview: the server kept it pressed
+- release all the keys still pressed when the page loses focus, not just the last one, and without re-asserting the modifiers
+- don't send browser keycodes as X11 keysyms in key events: servers could press the wrong key, ie: `,` as `onequarter`
+- send the Menu key as `Menu`: `Menu_R` is not an X11 keysym
+- remove the `mediasource_video` option and the muxed video encodings it enabled (`h264+mp4`, `vp8+webm`, `mpeg4+mp4`): they have had no decoder since v10
+- remove the `mpeg1` encoding and the bundled `jsmpeg` decoder: also unused since v10
+- use the `h264` high profile and drop the `fast-decode` tuning: we always use a native decoder
+- release the mouse buttons released whilst the pointer was outside the page
+- [draw attention to the speaker icon when the server has audio to play](https://github.com/Xpra-org/xpra/issues/2325)
 - [new printer subsystem prefix](https://github.com/Xpra-org/xpra-html5/commit/27b13d60b0655a7cbf4b8205258c79bdfc4b0704)
 - [support new keyboard mapping packet](https://github.com/Xpra-org/xpra-html5/commit/38c1f4892af366774dd733fc706f09bef6e3449d) [with newer servers](https://github.com/Xpra-org/xpra-html5/commit/519496a8bcec8d6197d5fca19f6bf2345318311a)
 - [rencode support for Map objects](https://github.com/Xpra-org/xpra-html5/commit/34b58a815359feba66cea47dfdce086fcb2e7bcc)
