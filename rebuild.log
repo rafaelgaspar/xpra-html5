@@ -131,3 +131,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-hello-encoding 124ed3d] feat(html5-hello-encoding): send the chosen encoding in hello encoding_options
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-menu-fixes on 124ed3d8a16453a26d83f95b000e46666e2a0082
+Switched to a new branch 'feat/html5-menu-fixes'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
