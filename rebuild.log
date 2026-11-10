@@ -91,3 +91,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-keyboard-refocus be85dc7] feat(html5-keyboard-refocus): heartbeat-reclaim keyboard focus, not just on tab switch
+ 1 file changed, 11 insertions(+)
+==> rebuild feat/html5-reconnect-patience on be85dc751a981097180f3a49569a6dc743e3d236
+Switched to a new branch 'feat/html5-reconnect-patience'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
