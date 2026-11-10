@@ -32,3 +32,24 @@ hint: 	git rm --cached .fork-pack
 hint:
 hint: See "git help submodule" for more information.
 hint: Disable this message with "git config set advice.addEmbeddedRepo false"
+[feat/rafaelgaspar 6b58cec] feat(rafaelgaspar): tag integration releases from restacked upstream
+ 13 files changed, 1264 insertions(+), 85 deletions(-)
+ create mode 120000 .claude/skills
+ create mode 100644 .cursor/skills/README.md
+ create mode 100644 .cursor/skills/rafaelgaspar-fork/SKILL.md
+ create mode 160000 .fork-pack
+ create mode 100755 .github/scripts/rebuild-rafaelgaspar.sh
+ create mode 100755 .github/scripts/resolve-integration-tag.sh
+ delete mode 100644 .github/workflows/build.yml
+ delete mode 100644 .github/workflows/ci.yml
+ create mode 100644 .github/workflows/rafaelgaspar-release.yaml
+ create mode 100644 .github/workflows/rafaelgaspar-tag-bump.yaml
+ create mode 100644 rebuild.log
+==> rebuild feat/html5-connect-resize on 6b58cec9bcc083300aab436d9016b2a23f798bcb
+Switched to a new branch 'feat/html5-connect-resize'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
