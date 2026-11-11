@@ -73,3 +73,10 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-custom-css 27b8656] feat(html5-custom-css): ship custom.css in the html5 client tree
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-shadow-window-list on 27b8656486dcc91958d47cba176e49eae8f9e70a
+Switched to a new branch 'feat/html5-shadow-window-list'
+M	rebuild.log
+Auto-merging html5/index.html
+Auto-merging html5/js/Client.js
