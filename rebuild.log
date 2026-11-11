@@ -80,3 +80,14 @@ Switched to a new branch 'feat/html5-shadow-window-list'
 M	rebuild.log
 Auto-merging html5/index.html
 Auto-merging html5/js/Client.js
+[feat/html5-shadow-window-list beb2d4a] feat(html5-shadow-window-list): show toolbar window list on shadow sessions
+ 4 files changed, 91 insertions(+), 4 deletions(-)
+ create mode 100644 tests/ClientReconnect.test.mjs
+==> rebuild feat/html5-keyboard-refocus on beb2d4a00698a72eddc853cb558fa8a8b9eeb508
+Switched to a new branch 'feat/html5-keyboard-refocus'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
