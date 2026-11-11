@@ -53,3 +53,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-connect-resize 2392ba9] feat(html5-connect-resize): sync the canvas to the viewport after connect
+ 1 file changed, 21 insertions(+)
+==> rebuild feat/html5-dark-theme on 2392ba9a79fe572ece3b73fe1475768f35168144
+Switched to a new branch 'feat/html5-dark-theme'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
