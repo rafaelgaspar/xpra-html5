@@ -101,3 +101,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-reconnect-patience 8c5c57f] feat(html5-reconnect-patience): keep retrying while the server is still starting
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-resume-keep-canvas on 8c5c57fc875fddf4bac11a3aed7d571ebc916b5a
+Switched to a new branch 'feat/html5-resume-keep-canvas'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
