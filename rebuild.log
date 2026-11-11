@@ -63,3 +63,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-dark-theme 454b62c] feat(html5-dark-theme): dark theme window chrome in client.css
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-custom-css on 454b62c5692236079358bd35c13cb0d05cf547ff
+Switched to a new branch 'feat/html5-custom-css'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
