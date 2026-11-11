@@ -1,0 +1,8 @@
+Origin: rafaelgaspar
+Label: rafaelgaspar xpra-html5
+Suite: forky
+Codename: forky
+Architectures: amd64
+Components: main
+Description: rafaelgaspar/xpra-html5 integration debs for Debian forky
+
