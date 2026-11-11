@@ -54,11 +54,18 @@ function addWindowListItem(win, wid, title) {
     } else {
       client.set_focus(win);
     }
-    this.parentElement.parentElement.className = "-hide";
+    const list = this.parentElement.parentElement;
+    list.classList.remove("-visible");
+    list.classList.add("-hide");
   });
 
   function hideWindowList() {
-    document.querySelector("#open_windows_list").className = "";
+    const list = document.querySelector("#open_windows_list");
+    if (!list) {
+      return;
+    }
+    list.classList.remove("-visible");
+    list.classList.add("-hide");
   }
 
   const divLeft = document.createElement("div");
