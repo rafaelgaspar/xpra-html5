@@ -2,19 +2,19 @@ Origin: rafaelgaspar
 Label: rafaelgaspar xpra-html5
 Suite: forky
 Codename: forky
-Date: Wed, 11 Nov 2026 17:26:28 UTC
+Date: Wed, 11 Nov 2026 17:58:25 UTC
 Architectures: amd64
 Components: main
 Description: rafaelgaspar/xpra-html5 integration debs for Debian forky
 MD5Sum:
- 780870b2741b7082c3739449c9b8ff93 1098 main/binary-amd64/Packages
- eede378344e2463c7fa55ae90819abcb 616 main/binary-amd64/Packages.gz
+ 122bb1500e65867815f587e866464340 1098 main/binary-amd64/Packages
+ 261d9d97f50a7a4aad18797cf365da1c 616 main/binary-amd64/Packages.gz
  65a9f65df15b33b7fc3b0c41f227c97c 174 main/binary-amd64/Release
 SHA1:
- ae9e64642cf2ccd6090483b7ce3fa9da2a370d5f 1098 main/binary-amd64/Packages
- bbb92ce09931e56ee3afbf30913cf07e6ce05106 616 main/binary-amd64/Packages.gz
+ 2d6db99dba89451e72a380b95a399e880a69997a 1098 main/binary-amd64/Packages
+ d8626859e784ea618ff60b117d6ffdb8261e3bf9 616 main/binary-amd64/Packages.gz
  3108c5a4ac3fbdfd009220f9ab0cfa979f3b1ab7 174 main/binary-amd64/Release
 SHA256:
- f3fa1b6e3ca102905d3c6039ae3ca068b8822aed042e38c20d51bc7a562909cf 1098 main/binary-amd64/Packages
- 852f63ea2693c860d3a7c58d36ded3e1cd8a704f0eecd138249f8f044e80a4c2 616 main/binary-amd64/Packages.gz
+ 157e435c29c49fea8677ce48bfde484fc7f7225d64edbff1756ca3ca566b0767 1098 main/binary-amd64/Packages
+ 8de1b143bfacbd1b30f25a48125aee0dc977dbc2680559629536466e07f6ccc8 616 main/binary-amd64/Packages.gz
  c0dfd886da3c1b5a8928fa590bbd06496518033e6ad7a70422c94346ed617d8d 174 main/binary-amd64/Release
