@@ -111,3 +111,13 @@ error: Your local changes to the following files would be overwritten by merge:
 Please commit your changes or stash them before you merge.
 Aborting
 fatal: cherry-pick failed
+[feat/html5-resume-keep-canvas bcd89da] feat(html5-resume-keep-canvas): keep the window canvas when the tab is shown again
+ 1 file changed, 10 insertions(+)
+==> rebuild feat/html5-decode-worker-reconnect on bcd89da3c2bb4baeab2f34002e2a3720cc243805
+Switched to a new branch 'feat/html5-decode-worker-reconnect'
+M	rebuild.log
+error: Your local changes to the following files would be overwritten by merge:
+	rebuild.log
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: cherry-pick failed
