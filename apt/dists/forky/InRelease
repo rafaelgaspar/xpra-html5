@@ -1,0 +1,39 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: rafaelgaspar
+Label: rafaelgaspar xpra-html5
+Suite: forky
+Codename: forky
+Date: Wed, 11 Nov 2026 04:13:45 UTC
+Architectures: amd64
+Components: main
+Description: rafaelgaspar/xpra-html5 integration debs for Debian forky
+MD5Sum:
+ ad2ccd73d4d4e32a6e4a9dbe46f3b1d7 1098 main/binary-amd64/Packages
+ 19a510b6758e1db915e3a8f58932db99 614 main/binary-amd64/Packages.gz
+ 65a9f65df15b33b7fc3b0c41f227c97c 174 main/binary-amd64/Release
+SHA1:
+ b56c6b85aec72ffb40abaf91060cf9d506a2a522 1098 main/binary-amd64/Packages
+ cdbe37375c1d3775b90876e05d94f27eace167d3 614 main/binary-amd64/Packages.gz
+ 3108c5a4ac3fbdfd009220f9ab0cfa979f3b1ab7 174 main/binary-amd64/Release
+SHA256:
+ 0cd4c9af7031714154598ddabbc656dd04839d26af0be659829aa8d042a1b6ba 1098 main/binary-amd64/Packages
+ 2aef82f666f05d760db4ab3926e1900aadb008d7b1de3268ae2eb60732961dd6 614 main/binary-amd64/Packages.gz
+ c0dfd886da3c1b5a8928fa590bbd06496518033e6ad7a70422c94346ed617d8d 174 main/binary-amd64/Release
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEpIVMfWt8PyvwAoPQTKK4ahJ/e4IFAmrz63kACgkQTKK4ahJ/
+e4IHrA//S5mt5ofDtCiyxRzi4AKrcerjHwLAXoFrODs7/DoEJuvFZ9C/E+/oe3JX
+6hlfPJfSAiRa9ZW7PDAsAh6maibdCYMZwn7/dmzaf6ITLFLELyDYsjgSHUz/+yUJ
+MUkZUZqdY2l+/MZiGfFPJiTPsEqoRmLs2PGEvMAo1jM40r9IK5e2RjpdiEzYnw1Q
+2M4rFhDmDTVMb4mSq5W87tJeHtmGjT9UTTOOlJhPDYR2U2bFp2L9aXw2httxdYI+
+9eA8mzTk/NeIuT+seJxdl3wpUOsFCYTe9ZdlXfyqAl6p48+6g9MWZY05YEbRbFsN
+Ai5ygzhbKfQOpKwv855vyGZ0O2H9DVr8sVM7JvWEkaD1x3JUwhOl46EWYA1lYdwb
+JRlpAfORlqBEK5dHsHpOKe5SoTd6PjSHxv7A9/AEvZFO5dMM65+SBjQ2rPIMKLcX
+lBWgOlzodSseqK+50AanUin9/DuD/NB+i0UmpB4tjgGi1F5FzgPrZHI/VcxA7zwT
+aELP3qzGv1WYslK1f3Mj2WjlUU6fQA1sGEEBItzmTR48PAHAnZpzZKIfVUDiFEhO
+D1ksW+rrcuJHMHnk0M1eMiICCfFN02R2j6sMAjZmhf2QDc8z5XsmkNxSoPoFd6Hn
+Yc1CfSAJmk+BiiZ1rpdBmdkdyK5B0PpxNOv4fYjnBnZzBbuNIbM=
+=WNZM
+-----END PGP SIGNATURE-----

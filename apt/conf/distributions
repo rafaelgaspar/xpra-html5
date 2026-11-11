@@ -5,4 +5,4 @@ Codename: forky
 Architectures: amd64
 Components: main
 Description: rafaelgaspar/xpra-html5 integration debs for Debian forky
-
+SignWith: E968D53BFFAEE827621FCE7CEA9F7888790F3B75
