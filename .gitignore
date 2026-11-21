@@ -8,3 +8,7 @@
 /install
 /dist
 /MANIFEST
+
+# fork-pack CI checkout and tag-bump log (never commit)
+.fork-pack/
+rebuild.log
