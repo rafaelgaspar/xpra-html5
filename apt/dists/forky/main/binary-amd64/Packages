@@ -1,5 +1,5 @@
 Package: xpra-html5
-Version: 22~f640f03.rafaelgaspar.8-r0-1
+Version: 22~f640f03.rafaelgaspar.9-r0-1
 Source: xpra-html5
 Maintainer: Antoine Martin <antoine@xpra.org>
 Standards-Version: 3.9.3
@@ -21,11 +21,11 @@ Recommends: gnome-backgrounds | mate-backgrounds
 Homepage: https://xpra.org/
 Priority: optional
 Section: net
-Filename: pool/main/x/xpra-html5/xpra-html5_22~f640f03.rafaelgaspar.8-r0-1_all.deb
-Size: 2032920
-SHA256: 66a4fade3d4fee475dce85ec05dc0c76f990e3bca366987940f38192efd745aa
-SHA1: 1eb118bb6fc460bb7624680e4100f7f4de8548da
-MD5sum: bc5481057e9e39bf29d789d76ce9a4ff
+Filename: pool/main/x/xpra-html5/xpra-html5_22~f640f03.rafaelgaspar.9-r0-1_all.deb
+Size: 2033592
+SHA256: d1b82289c4d2cd047673d0c130dfb86c4c1f4422898c45c0b443e34f0e5e344f
+SHA1: 63614d47b670e8d9dce7087bf29ea8c90ccedb9e
+MD5sum: 976dd0af8225d8837dc4b5937c20e0a5
 Description: html5 xpra client
  This package can be used by the xpra server to provide an integrated
  HTML5 client, directly accessible via the server's builtin http server.
