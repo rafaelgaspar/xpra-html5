@@ -725,7 +725,9 @@ class XpraClient {
     this.on_audio_signal_change(false);
     if (this.protocol) {
       this.protocol.close();
-      this.protocol.terminate();
+      if (typeof this.protocol.terminate === "function") {
+        this.protocol.terminate();
+      }
       this.protocol = null;
     }
   }

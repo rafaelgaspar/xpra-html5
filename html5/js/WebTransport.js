@@ -26,6 +26,12 @@ class XpraWebTransportProtocol {
     this.process_interval = 0; //milliseconds
   }
 
+  _dispatch(packet) {
+    if (this.packet_handler) {
+      this.packet_handler(packet);
+    }
+  }
+
   cancel_connected_timer() {
     if (this.verify_connected_timer) {
       clearTimeout(this.verify_connected_timer);
@@ -34,32 +40,32 @@ class XpraWebTransportProtocol {
   }
 
   async open(uri) {
-    const me = this;
-    // (re-)init
+    this.close(false);
     this.raw_packets = [];
     this.rQ = [];
     this.sQ = [];
     this.header = [];
-    this.webtransport = null;
-    this.stream = null;
-
-    function handle(packet) {
-      me.packet_handler(packet);
-    }
 
     this.verify_connected_timer = setTimeout(
-      () => handle(["error", "connection timed out", 0]),
+      () => this._dispatch(["error", "connection timed out", 0]),
       CONNECT_TIMEOUT
     );
 
-    // connect the socket
     try {
       console.log("opening WebTransport connection to " + Utilities.obfuscateURL(uri));
       this.webtransport = new WebTransport(uri);
     } catch (error) {
-      handle(["error", `${error}`, 0]);
+      this._fail_open(error);
       return;
     }
+
+    this.webtransport.closed.then(() => {
+        this._dispatch(["close", "transport closed"]);
+      })
+      .catch((e) => {
+        console.error("error closing WebTransport: " + e);
+        this._dispatch(["close", "error", e.toString()]);
+      });
 
     try {
       console.log("waiting for connection");
@@ -67,71 +73,85 @@ class XpraWebTransportProtocol {
       this.cancel_connected_timer();
     } catch (e) {
       console.error("connection failed: " + e);
-      handle(["error", e.toString()]);
-      this.cancel_connected_timer();
+      this._fail_open(e);
       return;
     }
 
-    this.webtransport.closed.then(() => {
-        handle(["close", "transport closed"])
-      })
-      .catch((e) => {
-        console.error("error closing WebTransport: " + e);
-        handle(["close", "error", e.toString()])
-      });
+    try {
+      console.log("creating stream");
+      this.stream = await this.webtransport.createBidirectionalStream();
+      console.log("starting read loop with stream=" + this.stream);
+      this.writer = this.stream.writable.getWriter();
+      this.read_loop().then(() => {
+          console.log("read loop ended, closing");
+          this._dispatch(["close", "read loop ended"]);
+        })
+        .catch((e) => {
+          console.error("error in read loop: " + e);
+          this._dispatch(["close", "read loop error", e.toString()]);
+        });
+      this._dispatch(["open"]);
+      console.log("async open end");
+    } catch (e) {
+      console.error("connection failed: " + e);
+      this._fail_open(e);
+    }
+  }
 
-    console.log("creating stream");
-    this.stream = await this.webtransport.createBidirectionalStream();
-    console.log("starting read loop with stream=" + this.stream);
-    this.read_loop().then(() => {
-        console.log("read loop ended, closing");
-        handle(["close", "read loop ended"])
-      })
-      .catch((e) => {
-        console.error("error in read loop: " + e);
-        handle(["close", "read loop error", e.toString()])
-      });
-    this.writer = this.stream.writable.getWriter();
-    handle(["open"]);
-    console.log("async open end");
+  _fail_open(error) {
+    this.cancel_connected_timer();
+    const message = error?.toString?.() ?? String(error);
+    this._dispatch(["error", message, 0]);
+    this._dispatch(["close", "connection failed", message]);
+    this.close(false);
   }
 
   async read_loop() {
     const reader = this.stream.readable.getReader();
-    const me = this;
-    while (true) {
-      const {
-        value,
-        done
-      } = await reader.read();
-      if (done) {
-        break;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+        this.rQ.push(value);
+        setTimeout(() => this.process_receive_queue(), this.process_interval);
       }
-      this.rQ.push(value);
-      setTimeout(() => me.process_receive_queue(), this.process_interval);
+    } finally {
+      reader.releaseLock();
     }
   }
 
   protocol_error(message) {
-    this.packet_handler(["error", message]);
+    this._dispatch(["error", message, 0]);
     console.error("protocol error: " + message);
     this.close();
   }
 
-  close() {
+  close(notify = true) {
     this.cancel_connected_timer();
     const wt = this.webtransport;
-    if (wt) {
-      wt.closed.then(() => {
-          console.log("closed WebTransport connection");
-          handle(["close", "WebTransport closed"])
-        })
-        .catch((e) => {
-          console.log("error closing WebTransport connection: " + e);
-          handle(["close", "error closing WebTransport connection", e.toString()])
-        });
-    }
+    const writer = this.writer;
+    this.writer = null;
+    this.stream = null;
     this.webtransport = null;
+    if (writer) {
+      writer.close().catch((e) => {
+        console.log("error closing WebTransport writer: " + e);
+      });
+    }
+    if (wt) {
+      wt.close().catch((e) => {
+        console.log("error closing WebTransport connection: " + e);
+      });
+    }
+    if (!notify) {
+      return;
+    }
+  }
+
+  terminate() {
+    this.close(false);
   }
 
   process_receive_queue() {
@@ -327,8 +347,11 @@ class XpraWebTransportProtocol {
         packet_data[7 - index] = (payload_size >> (8 * index)) & 0xff;
       }
       packet_data.set(bdata, 8);
-      if (this.stream) {
-        this.writer.write(new Uint8Array(packet_data).buffer);
+      if (this.writer) {
+        this.writer.write(packet_data).catch((e) => {
+          console.error("WebTransport send failed: " + e);
+          this._dispatch(["close", "send failed", e.toString()]);
+        });
       }
     }
   }
