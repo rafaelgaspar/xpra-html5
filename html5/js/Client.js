@@ -725,7 +725,9 @@ class XpraClient {
     this.on_audio_signal_change(false);
     if (this.protocol) {
       this.protocol.close();
-      this.protocol.terminate();
+      if (typeof this.protocol.terminate === "function") {
+        this.protocol.terminate();
+      }
       this.protocol = null;
     }
   }
@@ -2533,7 +2535,11 @@ class XpraClient {
   _process_error(packet) {
     const code = Number.parseInt(packet[2]);
     let reconnect = this.reconnect || this.reconnect_attempt < this.reconnect_count;
-    if (reconnect && [0, 1006, 1008, 1010, 1014, 1015].includes(code) && !this.connected) {
+    if (this.webtransport && !this.connected) {
+      // WebTransport never became ready (Safari, missing HTTP/3, …).
+      // Return to connect.html with the error instead of retrying.
+      reconnect = false;
+    } else if (reconnect && [0, 1006, 1008, 1010, 1014, 1015].includes(code) && !this.connected) {
       // These codes are likely permanent for a plain xpra server, but behind a
       // proxy that starts or leases the backend on demand they are the normal
       // "not ready yet": retry within the bounded reconnect_count budget
@@ -2556,7 +2562,10 @@ class XpraClient {
   packet_disconnect_reason(packet) {
     if (!this.disconnect_reason && packet[1]) {
       const code = packet[2];
-      if (!this.connected && [0, 1006, 1008, 1010, 1014, 1015].includes(code)) {
+      if (this.webtransport && !this.connected) {
+        const detail = packet[2] || packet[1];
+        this.disconnect_reason = `WebTransport connection failed: ${detail}`;
+      } else if (!this.connected && [0, 1006, 1008, 1010, 1014, 1015].includes(code)) {
         this.disconnect_reason = "connection failed, invalid address?";
       } else {
         this.disconnect_reason = packet[1];
@@ -2595,6 +2604,10 @@ class XpraClient {
       return;
     }
     this.packet_disconnect_reason(packet);
+    if (this.webtransport && !this.connected) {
+      this.close();
+      return;
+    }
     if (this.reconnect && this.reconnect_attempt < this.reconnect_count) {
       this.emit_connection_lost();
       this.close_protocol();
